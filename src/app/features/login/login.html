@@ -1,0 +1,62 @@
+﻿<div class="login-page">
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-mark">F</div>
+
+      <div>
+        <h1>Fornect</h1>
+        <p>Network protection made simple.</p>
+      </div>
+    </div>
+
+    <div class="login-content">
+      <div class="heading">
+        <h2>Welcome back</h2>
+        <p>Sign in to manage your Fornect network.</p>
+      </div>
+
+      <form (ngSubmit)="signIn()">
+        <div class="form-field">
+          <label for="email">Email address</label>
+
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="email"
+            placeholder="name@example.com"
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="password">Password</label>
+
+          <input
+            id="password"
+            name="password"
+            type="password"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          />
+        </div>
+
+        @if (errorMessage) {
+          <div class="login-error">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <button type="submit" class="login-button">
+          Sign in
+        </button>
+      </form>
+    </div>
+
+    <div class="login-footer">
+      <span class="status-dot"></span>
+      Fornect protection platform
+    </div>
+  </div>
+</div>

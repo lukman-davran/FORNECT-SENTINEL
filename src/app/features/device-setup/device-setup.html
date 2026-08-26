@@ -1,0 +1,127 @@
+﻿<div class="setup-page">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Device setup</p>
+      <h1>Set up new device</h1>
+      <p class="subtitle">
+        Name the device, choose a profile and select its protection level.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="back-button"
+      routerLink="/devices">
+      Back to devices
+    </button>
+  </header>
+
+  <main class="content">
+    <section class="setup-card">
+      <div class="step">
+        <div class="step-number">1</div>
+
+        <div class="step-content">
+          <span class="step-label">Device name</span>
+          <h2>What device is this?</h2>
+          <p>Give it a name that will be easy to recognize later.</p>
+
+          <input
+            type="text"
+            [(ngModel)]="deviceName"
+            placeholder="e.g. Amina's tablet"
+          />
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+
+        <div class="step-content">
+          <span class="step-label">Profile</span>
+          <h2>Who uses this device?</h2>
+          <p>Choose the protection profile for this device.</p>
+
+          <div class="profile-grid">
+            <button
+              type="button"
+              [class.active]="selectedProfile === 'Child'"
+              (click)="setProfile('Child')">
+              <strong>Child</strong>
+              <span>Strict parental protection</span>
+            </button>
+
+            <button
+              type="button"
+              [class.active]="selectedProfile === 'Teen'"
+              (click)="setProfile('Teen')">
+              <strong>Teen</strong>
+              <span>Balanced parental controls</span>
+            </button>
+
+            <button
+              type="button"
+              [class.active]="selectedProfile === 'Adult'"
+              (click)="setProfile('Adult')">
+              <strong>Adult</strong>
+              <span>Standard network protection</span>
+            </button>
+
+            <button
+              type="button"
+              [class.active]="selectedProfile === 'Admin'"
+              (click)="setProfile('Admin')">
+              <strong>Admin</strong>
+              <span>Owner or trusted device</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+
+        <div class="step-content">
+          <span class="step-label">Protection</span>
+          <h2>Choose protection level</h2>
+          <p>You can change this later from device settings.</p>
+
+          <div class="protection-grid">
+            <button
+              type="button"
+              [class.active]="protectionLevel === 'standard'"
+              (click)="setProtection('standard')">
+              <strong>Standard Protection</strong>
+              <span>DNS filtering and basic network protection</span>
+            </button>
+
+            <button
+              type="button"
+              [class.active]="protectionLevel === 'full'"
+              (click)="setProtection('full')">
+              <strong>Full Protection</strong>
+              <span>Advanced protection with Fornect Protection Profile</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-actions">
+        <button
+          type="button"
+          class="cancel-button"
+          routerLink="/devices">
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="finish-button"
+          [disabled]="!deviceName.trim() || !selectedProfile"
+          (click)="finishSetup()">
+          Finish setup
+        </button>
+      </div>
+    </section>
+  </main>
+</div>

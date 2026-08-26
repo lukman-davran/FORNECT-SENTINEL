@@ -1,0 +1,164 @@
+﻿<div class="protection-page">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Protection</p>
+      <h1>{{ deviceName }}</h1>
+      <p class="subtitle">Manage the protection level for this device.</p>
+    </div>
+
+    <button
+      type="button"
+      class="back-button"
+      [routerLink]="['/devices', deviceId]">
+      Back to device
+    </button>
+  </header>
+
+  <main class="content">
+    <section class="protection-card">
+      <div class="section-heading">
+        <div>
+          <span class="card-label">Current protection</span>
+
+          @if (pairingState === 'paired') {
+            <h2>Full Protection</h2>
+          } @else {
+            <h2>Standard Protection</h2>
+          }
+        </div>
+
+        @if (pairingState === 'paired') {
+          <span class="status-badge">Active</span>
+        }
+      </div>
+
+      <div class="protection-options">
+        <div
+          class="protection-option"
+          [class.selected]="pairingState !== 'paired'">
+          <div class="option-icon">DNS</div>
+
+          <div>
+            <h3>Standard Protection</h3>
+            <p>
+              DNS filtering and basic network protection.
+              No certificate is required.
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="protection-option"
+          [class.selected]="pairingState === 'paired'">
+          <div class="option-icon">FULL</div>
+
+          <div>
+            <h3>Full Protection</h3>
+            <p>
+              Advanced protection for paired devices with an installed
+              Fornect protection certificate.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pairing-section">
+        <span class="card-label">Certificate pairing</span>
+
+        @if (pairingState === 'paired') {
+          <h3>Protection profile installed</h3>
+
+          <p>
+            This device is paired with Fornect and advanced protection is enabled.
+          </p>
+
+          <div class="pairing-status">
+            <span class="status-dot"></span>
+
+            <div>
+              <strong>Paired</strong>
+              <p>Certificate status verified.</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="resetPairing()">
+            Reinstall protection profile
+          </button>
+        }
+
+        @if (pairingState === 'unpaired') {
+          <h3>Full Protection is not enabled</h3>
+
+          <p>
+            Pair this device with Fornect to enable advanced protection.
+          </p>
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="startPairing()">
+            Start pairing
+          </button>
+        }
+
+        @if (pairingState === 'pairing') {
+          <h3>Install Fornect Protection Profile</h3>
+
+          <p>
+            Follow the installation steps on this device, then confirm when the
+            protection profile has been installed.
+          </p>
+
+          <div class="pairing-progress">
+            <span class="progress-spinner"></span>
+
+            <div>
+              <strong>Waiting for confirmation</strong>
+              <p>Pairing is currently in progress.</p>
+            </div>
+          </div>
+
+          <div class="pairing-actions">
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="failPairing()">
+              Installation failed
+            </button>
+
+            <button
+              type="button"
+              class="primary-button"
+              (click)="completePairing()">
+              Profile installed
+            </button>
+          </div>
+        }
+
+        @if (pairingState === 'failed') {
+          <h3>Pairing failed</h3>
+
+          <p>
+            Fornect could not verify the protection profile on this device.
+          </p>
+
+          <div class="pairing-error">
+            <strong>Protection profile not verified</strong>
+            <p>Please try the installation again.</p>
+          </div>
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="startPairing()">
+            Try again
+          </button>
+        }
+      </div>
+    </section>
+  </main>
+</div>
+

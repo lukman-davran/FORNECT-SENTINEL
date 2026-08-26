@@ -1,0 +1,134 @@
+﻿<div class="page">
+  <header class="topbar">
+    <div>
+      <a routerLink="/dashboard" class="brand">Fornect</a>
+      <span class="separator">/</span>
+      <span>Protection</span>
+    </div>
+
+    <a routerLink="/dashboard" class="back-button">
+      ← Dashboard
+    </a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Network security</p>
+        <h1>Protection</h1>
+
+        <p>
+          Review how every device is protected and manage
+          certificate pairing for full Fornect protection.
+        </p>
+      </div>
+
+      <div class="hero-badge">
+        <span class="hero-badge__dot"></span>
+        Protection active
+      </div>
+    </section>
+
+    <section class="stats">
+      <article>
+        <span>Full Protection</span>
+        <strong>{{ fullProtectionCount }}</strong>
+      </article>
+
+      <article>
+        <span>Standard Protection</span>
+        <strong>{{ standardProtectionCount }}</strong>
+      </article>
+
+      <article>
+        <span>Needs setup</span>
+        <strong>{{ needsSetupCount }}</strong>
+      </article>
+    </section>
+
+    <section class="section-header">
+      <div>
+        <p class="eyebrow">Protected devices</p>
+        <h2>Device protection</h2>
+      </div>
+    </section>
+
+    <section class="device-list">
+      @for (device of devices; track device.id) {
+        <article
+          class="device-card"
+          [class.device-card--full]="device.protectionLevel === 'full'"
+        >
+          <div class="device">
+            <div class="device-avatar">
+              {{ device.name.charAt(0) }}
+            </div>
+
+            <div>
+              <h3>{{ device.name }}</h3>
+
+              <p>
+                {{ device.profile ?? 'Unassigned' }} profile
+              </p>
+            </div>
+          </div>
+
+          <div class="protection-level">
+            <span>Protection</span>
+
+            <strong>
+              {{ getProtectionLabel(device) }}
+            </strong>
+
+            <small
+              [class.full]="device.protectionLevel === 'full'"
+            >
+              {{
+                device.protectionLevel === 'full'
+                  ? 'Firewall + DNS + certificate'
+                  : device.protectionLevel === 'standard'
+                    ? 'DNS and network protection'
+                    : 'Configuration required'
+              }}
+            </small>
+          </div>
+
+          <div class="certificate">
+            <span>Certificate</span>
+
+            <strong
+              [class.paired]="device.pairingState === 'paired'"
+              [class.failed]="device.pairingState === 'failed'"
+            >
+              {{ getPairingLabel(device) }}
+            </strong>
+          </div>
+
+          <div class="actions">
+            <span
+              class="device-status"
+              [class.device-status--online]="device.online"
+            >
+              <span></span>
+              {{ device.online ? 'Online' : 'Offline' }}
+            </span>
+
+            <a
+              [routerLink]="['/devices', device.id, 'protection']"
+              class="manage-button"
+            >
+              Manage protection
+            </a>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-state">
+          <h2>No devices yet</h2>
+          <p>
+            Add a device before configuring protection.
+          </p>
+        </div>
+      }
+    </section>
+  </main>
+</div>

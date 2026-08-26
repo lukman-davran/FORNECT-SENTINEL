@@ -1,0 +1,119 @@
+﻿<div class="devices-page">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Fornect network</p>
+      <h1>Devices</h1>
+      <p class="subtitle">Manage devices connected to your network.</p>
+    </div>
+
+    <button type="button" class="back-button" routerLink="/dashboard">
+      Back to dashboard
+    </button>
+  </header>
+
+  <main class="devices-content">
+    <section class="summary">
+      <div class="summary-card">
+        <span>Online</span>
+        <strong>{{ onlineCount }}</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>Protected</span>
+        <strong>{{ protectedCount }}</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>Unassigned</span>
+        <strong>{{ unassignedCount }}</strong>
+      </div>
+    </section>
+
+    <section class="device-list">
+      <div class="section-heading">
+        <div>
+          <h2>Network devices</h2>
+          <p>Devices are discovered automatically by Fornect.</p>
+        </div>
+      </div>
+
+      @for (device of devices; track device.id) {
+        <div
+          class="device-card"
+          [class.unassigned]="device.profile === null">
+
+          <div class="device-info">
+            <div class="device-icon">
+  @switch (device.type) {
+    @case ('phone') {
+      <svg lucideSmartphone width="22" height="22"></svg>
+    }
+    @case ('tv') {
+      <svg lucideTv width="22" height="22"></svg>
+    }
+    @case ('console') {
+      <svg lucideGamepad2 width="22" height="22"></svg>
+    }
+    @default {
+      <svg lucideCircleQuestionMark width="22" height="22"></svg>
+    }
+  }
+</div>
+
+            <div>
+              <h3>{{ device.name }}</h3>
+
+              <p>
+                @if (device.profile) {
+                  {{ device.profile }} profile
+                } @else {
+                  No profile assigned
+                }
+              </p>
+            </div>
+          </div>
+
+          <div class="device-meta">
+            <span
+              class="badge"
+              [class.full]="device.protection === 'Full protection'"
+              [class.standard]="device.protection === 'Standard'"
+              [class.warning]="device.protection === 'Needs setup'">
+              {{ device.protection }}
+            </span>
+
+            <span
+              class="connection-status"
+              [class.online]="device.online"
+              [class.offline]="!device.online">
+              <span class="connection-dot"></span>
+              {{ device.online ? 'Online' : 'Offline' }}
+            </span>
+          </div>
+
+          @if (device.profile === null) {
+            <button
+              type="button"
+              class="manage-button primary"
+              [routerLink]="['/devices', device.id, 'setup']">
+              Set up
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="manage-button"
+              [routerLink]="['/devices', device.id]">
+              Manage
+            </button>
+          }
+        </div>
+      }
+    </section>
+  </main>
+</div>
+
+
+
+
+
+

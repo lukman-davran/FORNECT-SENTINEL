@@ -1,0 +1,138 @@
+﻿<div class="dashboard-page">
+  <header class="topbar">
+    <div>
+      <h1>Fornect</h1>
+      <p>Network protection dashboard</p>
+    </div>
+
+    <div class="header-actions">
+      <div class="status">
+        <span class="status-dot"></span>
+        Online
+      </div>
+
+      <button
+        type="button"
+        class="logout-button"
+        (click)="logout()">
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <main class="dashboard-content">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Protection status</p>
+
+        <h2>
+          {{
+            networkPaused
+              ? 'Internet is paused'
+              : 'Your network is protected'
+          }}
+        </h2>
+
+        <p class="hero-text">
+          {{
+            networkPaused
+              ? 'Internet access is currently paused for all devices.'
+              : 'Fornect is active and monitoring your network.'
+          }}
+        </p>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Devices online</span>
+        <strong>{{ devicesOnline }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Protected devices</span>
+        <strong>{{ protectedDevices }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Child profiles</span>
+        <strong>{{ childProfiles }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Internet paused</span>
+        <strong>{{ pausedDevices }}</strong>
+      </div>
+    </section>
+
+    <section class="device-status-card">
+      <div>
+        <p class="eyebrow">Fornect device</p>
+        <h3>{{ fornectDevice.name }}</h3>
+        <p class="device-status-text">
+          Main network protection device
+        </p>
+      </div>
+
+      <div class="device-status-meta">
+        <span
+          class="device-online-status"
+          [class.offline]="!fornectDevice.online">
+          <span class="status-dot"></span>
+
+          {{
+            fornectDevice.online
+              ? 'Online'
+              : 'Offline'
+          }}
+        </span>
+
+        <div class="device-detail">
+          <span>Software</span>
+          <strong>
+            v{{ fornectDevice.softwareVersion }}
+          </strong>
+        </div>
+
+        <div class="device-detail">
+          <span>Last seen</span>
+          <strong>{{ fornectDevice.lastSeen }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="quick-actions">
+      <h3>Quick actions</h3>
+
+      <div class="actions-grid">
+        <button
+          type="button"
+          routerLink="/devices">
+          Devices
+        </button>
+
+        <button
+          type="button"
+          (click)="toggleInternetPause()">
+          {{
+            networkPaused
+              ? 'Resume internet'
+              : 'Pause internet'
+          }}
+        </button>
+
+        <button
+          type="button"
+          routerLink="/schedules">
+          Schedules
+        </button>
+
+        <button
+          type="button"
+          routerLink="/protection">
+          Protection
+        </button>
+      </div>
+    </section>
+  </main>
+</div>

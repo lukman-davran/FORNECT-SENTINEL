@@ -1,0 +1,164 @@
+﻿import { Component, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+
+import { AuthService } from '../../core/services/auth';
+import {
+  DeviceService,
+  FornectNetworkDevice
+} from '../../core/services/device';
+
+@Component({
+  selector: 'app-dashboard',
+  imports: [RouterLink],
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.scss'
+})
+export class Dashboard {
+  private readonly authService = inject(AuthService);
+  private readonly deviceService = inject(DeviceService);
+  private readonly router = inject(Router);
+
+  networkPaused = this.loadNetworkPaused();
+
+  fornectDevice = {
+    name: 'Fornect Home',
+    online: true,
+    softwareVersion: '0.1.0',
+    lastSeen: 'Just now'
+  };
+
+  get devicesOnline(): number {
+    return this.deviceService.devices()
+      .filter(device => device.online)
+      .length;
+  }
+
+  get protectedDevices(): number {
+    return this.deviceService.devices()
+      .filter(device =>
+        device.profile !== null &&
+        device.protectionLevel !== 'needs-setup'
+      )
+      .length;
+  }
+
+  get childProfiles(): number {
+    return this.deviceService.devices()
+      .filter(device => device.profile === 'Child')
+      .length;
+  }
+
+  get pausedDevices(): number {
+    if (this.networkPaused) {
+      return this.deviceService.devices().length;
+    }
+
+    return this.deviceService.devices()
+      .filter(device => this.isPausedNow(device))
+      .length;
+  }
+
+  toggleInternetPause(): void {
+    this.networkPaused = !this.networkPaused;
+
+    localStorage.setItem(
+      this.networkPauseStorageKey,
+      JSON.stringify(this.networkPaused)
+    );
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  private get networkPauseStorageKey(): string {
+    const accountId =
+      this.authService.currentUser()?.accountId ?? 'anonymous';
+
+    return `fornect-network-paused-${accountId}`;
+  }
+
+  private loadNetworkPaused(): boolean {
+    const saved = localStorage.getItem(
+      this.networkPauseStorageKey
+    );
+
+    if (saved === null) {
+      return false;
+    }
+
+    try {
+      return JSON.parse(saved) === true;
+    } catch {
+      return false;
+    }
+  }
+
+  private isPausedNow(device: FornectNetworkDevice): boolean {
+    if (
+      device.overrideUntil &&
+      device.overrideUntil > Date.now()
+    ) {
+      return false;
+    }
+
+    const schedule = device.schedule;
+
+    if (!schedule.enabled) {
+      return false;
+    }
+
+    const now = new Date();
+
+    const dayLabels = [
+      'Sun',
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri',
+      'Sat'
+    ];
+
+    const currentDay = dayLabels[now.getDay()];
+    const previousDay =
+      dayLabels[(now.getDay() + 6) % 7];
+
+    const currentMinutes =
+      now.getHours() * 60 + now.getMinutes();
+
+    const startMinutes =
+      Number(schedule.startHour) * 60 +
+      Number(schedule.startMinute);
+
+    const endMinutes =
+      Number(schedule.endHour) * 60 +
+      Number(schedule.endMinute);
+
+    const isSelected = (day: string) =>
+      schedule.days.some(
+        item => item.label === day && item.selected
+      );
+
+    if (startMinutes < endMinutes) {
+      return (
+        isSelected(currentDay) &&
+        currentMinutes >= startMinutes &&
+        currentMinutes < endMinutes
+      );
+    }
+
+    if (startMinutes > endMinutes) {
+      if (currentMinutes >= startMinutes) {
+        return isSelected(currentDay);
+      }
+
+      if (currentMinutes < endMinutes) {
+        return isSelected(previousDay);
+      }
+    }
+
+    return false;
+  }
+}

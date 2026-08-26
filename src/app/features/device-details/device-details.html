@@ -1,0 +1,198 @@
+﻿<div class="device-details-page">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Device</p>
+      <h1>{{ device.name }}</h1>
+      <p class="subtitle">Manage profile, protection and internet access.</p>
+    </div>
+
+    <button type="button" class="back-button" routerLink="/devices">
+      Back to devices
+    </button>
+  </header>
+
+  <main class="content">
+    <section class="device-header-card">
+      <div class="device-main">
+        <div class="device-icon">
+          @switch (device.type) {
+            @case ('phone') { &#128241; }
+            @case ('tv') { &#128250; }
+            @case ('console') { &#127918; }
+            @default { ? }
+          }
+        </div>
+
+        <div>
+          <h2>{{ device.name }}</h2>
+
+          <p>
+            @if (currentProfile) {
+              {{ currentProfile }} profile
+            } @else {
+              No profile assigned
+            }
+          </p>
+        </div>
+      </div>
+
+      <div class="device-status">
+        <span [class.online]="device.online" [class.offline]="!device.online">
+          ● {{ device.online ? 'Online' : 'Offline' }}
+        </span>
+
+        <span class="protection-badge">
+          {{ protectionLabel }}
+        </span>
+      </div>
+    </section>
+
+    <section class="settings-grid">
+      <div class="settings-card">
+        <div class="card-heading">
+          <div>
+            <span class="card-label">Profile</span>
+            <h3>{{ currentProfile ?? 'Unassigned' }}</h3>
+          </div>
+        </div>
+
+        @if (currentProfile) {
+          <p>
+            This device uses the {{ currentProfile }} protection profile.
+          </p>
+        } @else {
+          <p>
+            Assign a profile to start managing this device.
+          </p>
+        }
+
+        @if (profilePickerOpen) {
+          <div class="profile-options">
+            <button
+              type="button"
+              [class.active]="currentProfile === 'Child'"
+              (click)="setProfile('Child')">
+              Child
+            </button>
+
+            <button
+              type="button"
+              [class.active]="currentProfile === 'Teen'"
+              (click)="setProfile('Teen')">
+              Teen
+            </button>
+
+            <button
+              type="button"
+              [class.active]="currentProfile === 'Adult'"
+              (click)="setProfile('Adult')">
+              Adult
+            </button>
+
+            <button
+              type="button"
+              [class.active]="currentProfile === 'Admin'"
+              (click)="setProfile('Admin')">
+              Admin
+            </button>
+          </div>
+        } @else {
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="toggleProfilePicker()">
+            Change profile
+          </button>
+        }
+      </div>
+
+      <div class="settings-card">
+        <div class="card-heading">
+          <div>
+            <span class="card-label">Protection</span>
+            <h3>{{ protectionLabel }}</h3>
+          </div>
+        </div>
+
+        <p>
+          Manage the protection level and Fornect Protection Profile.
+        </p>
+
+        <button
+          type="button"
+          class="secondary-button"
+          [routerLink]="['/devices', device.id, 'protection']">
+          Protection settings
+        </button>
+      </div>
+
+      <div class="settings-card">
+        <div class="card-heading">
+          <div>
+            <span class="card-label">Internet schedule</span>
+            <h3>{{ scheduleLabel }}</h3>
+          </div>
+        </div>
+
+        @if (!device.schedule.enabled) {
+          <p>No automatic internet restrictions are configured.</p>
+        } @else {
+          <p>Internet access follows the configured bedtime schedule.</p>
+        }
+
+        <button
+          type="button"
+          class="secondary-button"
+          [routerLink]="['/devices', device.id, 'schedule']">
+          Edit schedule
+        </button>
+      </div>
+
+      <div class="settings-card">
+        <div class="card-heading">
+          <div>
+            <span class="card-label">Internet now</span>
+
+            @if (overrideActive) {
+              <h3 class="allowed">Temporarily allowed</h3>
+            } @else {
+              <h3 class="paused">Paused</h3>
+            }
+          </div>
+        </div>
+
+        @if (overrideActive) {
+          <p>
+            Internet access is temporarily allowed for
+            {{ overrideMinutes }} minutes.
+          </p>
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="cancelOverride()">
+            End override
+          </button>
+        } @else {
+          <p>Temporarily allow internet access outside the schedule.</p>
+
+          <div class="override-actions">
+            <button type="button" (click)="allowTemporary(15)">
+              15 min
+            </button>
+
+            <button type="button" (click)="allowTemporary(30)">
+              30 min
+            </button>
+
+            <button type="button" (click)="allowTemporary(60)">
+              1 hour
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+  </main>
+</div>
+
+

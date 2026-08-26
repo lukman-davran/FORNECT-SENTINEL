@@ -1,0 +1,105 @@
+﻿<div class="page">
+  <header class="topbar">
+    <div>
+      <a routerLink="/dashboard" class="brand">Fornect</a>
+      <span class="separator">/</span>
+      <span>Schedules</span>
+    </div>
+
+    <a routerLink="/dashboard" class="back-button">
+      ← Dashboard
+    </a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Device routines</p>
+        <h1>Schedules</h1>
+        <p>
+          Set healthy online hours and automatically pause
+          internet access when it is time to disconnect.
+        </p>
+      </div>
+
+      <div class="hero-badge">
+        <span class="hero-badge__dot"></span>
+        Automatic control
+      </div>
+    </section>
+
+    <section class="stats">
+      <article>
+        <span>Devices</span>
+        <strong>{{ devices.length }}</strong>
+      </article>
+
+      <article>
+        <span>Active schedules</span>
+        <strong>{{ activeSchedules }}</strong>
+      </article>
+
+      <article>
+        <span>Disabled</span>
+        <strong>{{ disabledSchedules }}</strong>
+      </article>
+    </section>
+
+    <section class="section-header">
+      <div>
+        <p class="eyebrow">Bedtime control</p>
+        <h2>Device schedules</h2>
+      </div>
+    </section>
+
+    <section class="schedule-list">
+      @for (device of devices; track device.id) {
+        <article
+          class="schedule-card"
+          [class.schedule-card--active]="device.schedule.enabled"
+        >
+          <div class="device">
+            <div class="device-avatar">
+              {{ device.name.charAt(0) }}
+            </div>
+
+            <div>
+              <h3>{{ device.name }}</h3>
+              <p>
+                {{ device.profile ?? 'Unassigned' }} profile
+              </p>
+            </div>
+          </div>
+
+          <div class="schedule-time">
+            <span>Bedtime</span>
+            <strong>{{ getScheduleLabel(device) }}</strong>
+            <small>{{ getDaysLabel(device) }}</small>
+          </div>
+
+          <div class="schedule-actions">
+            <span
+              class="status"
+              [class.status--active]="device.schedule.enabled"
+            >
+              <span></span>
+              {{ device.schedule.enabled ? 'Active' : 'Disabled' }}
+            </span>
+
+            <a
+              [routerLink]="['/devices', device.id, 'schedule']"
+              class="edit-button"
+            >
+              Edit schedule
+            </a>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-state">
+          <h2>No devices yet</h2>
+          <p>Add a device before creating a schedule.</p>
+        </div>
+      }
+    </section>
+  </main>
+</div>
