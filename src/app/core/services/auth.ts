@@ -1,4 +1,8 @@
-﻿import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+
+import { API_BASE_URL } from '../config/api.config';
 
 export interface AuthUser {
   id: string;
@@ -7,133 +11,115 @@ export interface AuthUser {
   accountId: string;
 }
 
-interface RegisteredUser extends AuthUser {
-  passwordHash: string;
+interface AccountApiResponse {
+  id: string;
+  name: string;
+  email: string;
+  email_verified: boolean;
+  created_at: string;
 }
 
-interface PendingRegistration extends RegisteredUser {}
+interface LoginApiResponse {
+  token: string;
+  account: AccountApiResponse;
+}
+
+interface StoredSession {
+  token: string;
+  user: AuthUser;
+}
+
+interface PendingRegistration extends StoredSession {
+  name: string;
+  email: string;
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  private readonly storageKey = 'fornect-auth-user';
-  private readonly registeredUsersKey = 'fornect-registered-users';
-  private readonly pendingRegistrationKey =
-    'fornect-pending-registration';
+  private readonly http = inject(HttpClient);
 
-  private readonly demoEmail = 'test@fornect.com';
-  private readonly demoPassword = 'test123';
+  private readonly storageKey = 'fornect-auth-session';
+  private readonly pendingRegistrationKey = 'fornect-pending-registration';
 
-  readonly currentUser = signal<AuthUser | null>(
-    this.loadSession()
-  );
+  private readonly session = signal<StoredSession | null>(this.loadSession());
 
-  readonly isAuthenticated = computed(
-    () => this.currentUser() !== null
-  );
+  readonly currentUser = computed(() => this.session()?.user ?? null);
 
-  async login(
-    email: string,
-    password: string,
-    rememberMe = false
-  ): Promise<boolean> {
-    const normalizedEmail =
-      email.trim().toLowerCase();
+  // Bearer token trenutne sesije — čita ga authInterceptor da bi ga
+  // zakačio na svaki zahtjev ka backend API-ju.
+  readonly token = computed(() => this.session()?.token ?? null);
 
-    // Existing POC demo account.
-    if (
-      normalizedEmail === this.demoEmail &&
-      password === this.demoPassword
-    ) {
-      const user: AuthUser = {
-        id: 'user-001',
-        name: 'Fornect Demo User',
-        email: this.demoEmail,
-        accountId: 'account-demo-001'
-      };
+  readonly isAuthenticated = computed(() => this.session() !== null);
 
-      this.saveSession(user, rememberMe);
-      return true;
-    }
+  async login(email: string, password: string, rememberMe = false): Promise<boolean> {
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const registeredUser =
-      this.loadRegisteredUsers().find(
-        user => user.email === normalizedEmail
+    try {
+      const response = await firstValueFrom(
+        this.http.post<LoginApiResponse>(`${API_BASE_URL}/auth/login`, {
+          email: normalizedEmail,
+          password,
+        }),
       );
 
-    if (!registeredUser) {
+      this.saveSession(this.toSession(response), rememberMe);
+
+      return true;
+    } catch {
+      // Pogrešna lozinka, nepostojeći nalog, ili backend nedostupan
+      // — sve tretiramo kao neuspjelu prijavu, isto kao i ranije.
       return false;
     }
-
-    const passwordHash =
-      await this.hashPassword(password);
-
-    if (
-      passwordHash !== registeredUser.passwordHash
-    ) {
-      return false;
-    }
-
-    const user: AuthUser = {
-      id: registeredUser.id,
-      name: registeredUser.name,
-      email: registeredUser.email,
-      accountId: registeredUser.accountId
-    };
-
-    this.saveSession(user, rememberMe);
-
-    return true;
   }
 
-  async prepareRegistration(
-    name: string,
-    email: string,
-    password: string
-  ): Promise<void> {
-    const normalizedEmail =
-      email.trim().toLowerCase();
+  async prepareRegistration(name: string, email: string, password: string): Promise<void> {
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const alreadyExists =
-      this.loadRegisteredUsers().some(
-        user => user.email === normalizedEmail
-      );
+    const trimmedName = name.trim();
 
-    if (
-      alreadyExists ||
-      normalizedEmail === this.demoEmail
-    ) {
-      throw new Error(
-        'An account with this email already exists.'
+    try {
+      await firstValueFrom(
+        this.http.post<AccountApiResponse>(`${API_BASE_URL}/auth/register`, {
+          name: trimmedName,
+          email: normalizedEmail,
+          password,
+        }),
       );
+    } catch (error) {
+      if (isHttpStatus(error, 409)) {
+        throw new Error('An account with this email already exists.');
+      }
+
+      throw error;
     }
 
-    const passwordHash =
-      await this.hashPassword(password);
+    // Nalog je kreiran na backend-u, ali korisnik se formalno
+    // prijavljuje tek nakon "verifikacije emaila" (verify-email
+    // ekran). Prijavu radimo odmah i čuvamo je kao pending, da
+    // completeRegistration() ostane sinhrona funkcija — pozivaju je
+    // verify-email.ts i device-pairing.ts bez await-a.
+    const loginResponse = await firstValueFrom(
+      this.http.post<LoginApiResponse>(`${API_BASE_URL}/auth/login`, {
+        email: normalizedEmail,
+        password,
+      }),
+    );
 
     const pending: PendingRegistration = {
-      id: `user-${Date.now()}`,
-      name: name.trim(),
+      name: trimmedName,
       email: normalizedEmail,
-      accountId: `account-${Date.now()}`,
-      passwordHash
+      ...this.toSession(loginResponse),
     };
 
-    sessionStorage.setItem(
-      this.pendingRegistrationKey,
-      JSON.stringify(pending)
-    );
+    sessionStorage.setItem(this.pendingRegistrationKey, JSON.stringify(pending));
 
-    sessionStorage.removeItem(
-      'fornect-email-verified'
-    );
+    sessionStorage.removeItem('fornect-email-verified');
   }
 
   completeRegistration(): boolean {
-    const saved = sessionStorage.getItem(
-      this.pendingRegistrationKey
-    );
+    const saved = sessionStorage.getItem(this.pendingRegistrationKey);
 
     // Nema pending registracije: nalog je vec
     // kreiran ranije (odmah nakon verifikacije
@@ -142,52 +128,22 @@ export class AuthService {
       return this.currentUser() !== null;
     }
 
-    const verified =
-      sessionStorage.getItem(
-        'fornect-email-verified'
-      ) === 'true';
+    const verified = sessionStorage.getItem('fornect-email-verified') === 'true';
 
     if (!verified) {
       return false;
     }
 
     try {
-      const pending =
-        JSON.parse(saved) as PendingRegistration;
+      const pending = JSON.parse(saved) as PendingRegistration;
 
-      const users = this.loadRegisteredUsers();
-
-      const exists = users.some(
-        user => user.email === pending.email
-      );
-
-      if (!exists) {
-        users.push(pending);
-
-        localStorage.setItem(
-          this.registeredUsersKey,
-          JSON.stringify(users)
-        );
-      }
-
-      const user: AuthUser = {
-        id: pending.id,
-        name: pending.name,
-        email: pending.email,
-        accountId: pending.accountId
-      };
-
-      this.saveSession(user, true);
+      this.saveSession({ token: pending.token, user: pending.user }, true);
 
       // Nalog sada trajno postoji, pa pending
       // podaci vise nisu potrebni.
-      sessionStorage.removeItem(
-        this.pendingRegistrationKey
-      );
+      sessionStorage.removeItem(this.pendingRegistrationKey);
 
-      sessionStorage.removeItem(
-        'fornect-email-verified'
-      );
+      sessionStorage.removeItem('fornect-email-verified');
 
       return true;
     } catch {
@@ -196,42 +152,46 @@ export class AuthService {
   }
 
   logout(): void {
-    this.currentUser.set(null);
+    this.session.set(null);
 
     localStorage.removeItem(this.storageKey);
     sessionStorage.removeItem(this.storageKey);
   }
 
-  private saveSession(
-    user: AuthUser,
-    rememberMe: boolean
-  ): void {
-    this.currentUser.set(user);
+  private toSession(response: LoginApiResponse): StoredSession {
+    return {
+      token: response.token,
+      user: {
+        id: response.account.id,
+        name: response.account.name,
+        email: response.account.email,
+        // Backend nema odvojen koncept "user" vs "account" — jedan
+        // nalog je i jedan account, pa je accountId isto sto i id.
+        accountId: response.account.id,
+      },
+    };
+  }
+
+  private saveSession(session: StoredSession, rememberMe: boolean): void {
+    this.session.set(session);
 
     localStorage.removeItem(this.storageKey);
     sessionStorage.removeItem(this.storageKey);
 
-    const storage = rememberMe
-      ? localStorage
-      : sessionStorage;
+    const storage = rememberMe ? localStorage : sessionStorage;
 
-    storage.setItem(
-      this.storageKey,
-      JSON.stringify(user)
-    );
+    storage.setItem(this.storageKey, JSON.stringify(session));
   }
 
-  private loadSession(): AuthUser | null {
-    const savedUser =
-      localStorage.getItem(this.storageKey) ??
-      sessionStorage.getItem(this.storageKey);
+  private loadSession(): StoredSession | null {
+    const saved = localStorage.getItem(this.storageKey) ?? sessionStorage.getItem(this.storageKey);
 
-    if (!savedUser) {
+    if (!saved) {
       return null;
     }
 
     try {
-      return JSON.parse(savedUser) as AuthUser;
+      return JSON.parse(saved) as StoredSession;
     } catch {
       localStorage.removeItem(this.storageKey);
       sessionStorage.removeItem(this.storageKey);
@@ -239,42 +199,13 @@ export class AuthService {
       return null;
     }
   }
+}
 
-  private loadRegisteredUsers(): RegisteredUser[] {
-    const saved =
-      localStorage.getItem(
-        this.registeredUsersKey
-      );
-
-    if (!saved) {
-      return [];
-    }
-
-    try {
-      return JSON.parse(saved) as RegisteredUser[];
-    } catch {
-      return [];
-    }
-  }
-
-  private async hashPassword(
-    password: string
-  ): Promise<string> {
-    const bytes =
-      new TextEncoder().encode(password);
-
-    const digest =
-      await crypto.subtle.digest(
-        'SHA-256',
-        bytes
-      );
-
-    return Array.from(
-      new Uint8Array(digest)
-    )
-      .map(value =>
-        value.toString(16).padStart(2, '0')
-      )
-      .join('');
-  }
+function isHttpStatus(error: unknown, status: number): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'status' in error &&
+    (error as { status?: number }).status === status
+  );
 }
