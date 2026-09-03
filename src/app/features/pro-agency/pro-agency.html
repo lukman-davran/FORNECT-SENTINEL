@@ -1,0 +1,256 @@
+<div class="pro-sub-page">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Fornect Pro</p>
+
+      <h1>
+        {{ 'agency.title' | translate }}
+      </h1>
+
+      <p>
+        {{ 'agency.subtitle' | translate }}
+      </p>
+    </div>
+
+    <a routerLink="/pro" class="back-button">
+      {{ 'pro.backToDashboard' | translate }}
+    </a>
+  </header>
+
+  <main class="content">
+
+    <section class="card">
+      <div class="card-heading">
+        <div>
+          <span class="card-label">
+            {{ 'agency.monitoringLabel' | translate }}
+          </span>
+
+          <h2>
+            {{
+              'agency.totalConnections'
+                | translate:{ count: totalConnections }
+            }}
+          </h2>
+        </div>
+      </div>
+
+      <p>
+        {{ 'agency.monitoringDescription' | translate }}
+      </p>
+
+      <div class="category-list">
+        @for (category of categories; track category.key) {
+          <div class="category-row">
+            <div class="category-text">
+              <strong>
+                {{ category.key | translate }}
+              </strong>
+
+              <small>
+                {{ category.connections }}
+                {{ 'agency.connections' | translate }}
+              </small>
+            </div>
+
+            <div class="category-bar">
+              <div
+                class="category-fill"
+                [style.width.%]="category.share">
+              </div>
+            </div>
+
+            <span class="category-share">
+              {{ category.share }}%
+            </span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-heading">
+        <div>
+          <span class="card-label">
+            {{ 'agency.reportsLabel' | translate }}
+          </span>
+
+          <h2>
+            {{ 'agency.reportsTitle' | translate }}
+          </h2>
+        </div>
+      </div>
+
+      <p>
+        {{ 'agency.reportsDescription' | translate }}
+      </p>
+
+      <form class="report-form" (ngSubmit)="generateReport()">
+        <label>
+          <span>
+            {{ 'agency.period' | translate }}
+          </span>
+
+          <select
+            name="reportPeriod"
+            [(ngModel)]="reportPeriod">
+            <option value="day">
+              {{ 'pro.periodDay' | translate }}
+            </option>
+
+            <option value="week">
+              {{ 'pro.periodWeek' | translate }}
+            </option>
+
+            <option value="month">
+              {{ 'pro.periodMonth' | translate }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>
+            {{ 'agency.format' | translate }}
+          </span>
+
+          <select
+            name="reportFormat"
+            [(ngModel)]="reportFormat">
+            <option value="pdf">PDF</option>
+            <option value="csv">CSV</option>
+          </select>
+        </label>
+
+        <button type="submit" class="primary-button">
+          {{ 'agency.generateReport' | translate }}
+        </button>
+      </form>
+
+      @if (reportMessage) {
+        <div class="success-message">
+          {{ reportMessage }}
+        </div>
+      }
+    </section>
+
+    <section class="card">
+      <div class="card-heading">
+        <div>
+          <span class="card-label">
+            {{ 'agency.alarmsLabel' | translate }}
+          </span>
+
+          <h2>
+            {{ 'agency.alarmsTitle' | translate }}
+          </h2>
+        </div>
+
+        <span
+          class="pill"
+          [class.on]="alarms.enabled">
+          {{
+            (alarms.enabled ? 'common.on' : 'common.off')
+              | translate
+          }}
+        </span>
+      </div>
+
+      <p>
+        {{ 'agency.alarmsDescription' | translate }}
+      </p>
+
+      <form class="alarm-form" (ngSubmit)="saveAlarms()">
+        <label class="checkbox-row">
+          <span>
+            {{ 'agency.alarmsEnabled' | translate }}
+          </span>
+
+          <input
+            type="checkbox"
+            name="alarmsEnabled"
+            [(ngModel)]="alarms.enabled" />
+        </label>
+
+        <label>
+          <span>
+            {{
+              'agency.spikeThreshold'
+                | translate:{ percent: alarms.spikeThreshold }
+            }}
+          </span>
+
+          <input
+            type="range"
+            name="spikeThreshold"
+            min="10"
+            max="200"
+            step="10"
+            [(ngModel)]="alarms.spikeThreshold" />
+        </label>
+
+        <label class="checkbox-row">
+          <span>
+            {{ 'agency.notifyByEmail' | translate }}
+          </span>
+
+          <input
+            type="checkbox"
+            name="notifyByEmail"
+            [(ngModel)]="alarms.notifyByEmail" />
+        </label>
+
+        @if (alarmsSaved) {
+          <div class="success-message">
+            {{ 'common.saved' | translate }}
+          </div>
+        }
+
+        <button type="submit" class="primary-button">
+          {{ 'common.save' | translate }}
+        </button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-heading">
+        <div>
+          <span class="card-label">
+            {{ 'agency.logLabel' | translate }}
+          </span>
+
+          <h2>
+            {{ 'agency.logTitle' | translate }}
+          </h2>
+        </div>
+      </div>
+
+      <p>
+        {{ 'agency.logDescription' | translate }}
+      </p>
+
+      <div class="event-log">
+        @for (event of events; track event.time) {
+          <div class="event-row">
+            <span class="event-time">{{ event.time }}</span>
+
+            <span
+              class="event-level"
+              [class.warning]="event.level === 'warning'"
+              [class.alert]="event.level === 'alert'">
+              {{ levelKey(event.level) | translate }}
+            </span>
+
+            <span class="event-message">
+              {{ event.messageKey | translate }}
+            </span>
+          </div>
+        }
+      </div>
+
+      <p class="note">
+        {{ 'agency.legalNote' | translate }}
+      </p>
+    </section>
+
+  </main>
+</div>

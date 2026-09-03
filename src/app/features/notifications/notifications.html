@@ -1,0 +1,142 @@
+﻿<div class="notifications-page">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Fornect</p>
+
+      <h1>
+        {{ 'notifications.title' | translate }}
+      </h1>
+
+      <p class="subtitle">
+        {{ 'notifications.subtitle' | translate }}
+      </p>
+    </div>
+
+    <a
+      routerLink="/dashboard"
+      class="back-button">
+      {{ 'common.backToDashboard' | translate }}
+    </a>
+  </header>
+
+  <main class="content">
+    <section class="notifications-card">
+
+      <div class="section-heading">
+        <div>
+          <span class="section-label">
+            {{ 'notifications.inbox' | translate }}
+          </span>
+
+          <h2>
+            {{ 'notifications.title' | translate }}
+
+            @if (unreadCount > 0) {
+              <span class="unread-count">
+                {{ unreadCount }}
+              </span>
+            }
+          </h2>
+        </div>
+
+        @if (unreadCount > 0) {
+          <button
+            type="button"
+            class="mark-all-button"
+            (click)="markAllAsRead()">
+
+            {{ 'notifications.markAll' | translate }}
+          </button>
+        }
+      </div>
+
+      <div class="notification-list">
+        @for (
+          notification of notifications;
+          track notification.id
+        ) {
+          <article
+            class="notification-item"
+            [class.notification-item--unread]="
+              !notification.read
+            ">
+
+            <div
+              class="notification-icon"
+              [class.notification-icon--offline]="
+                notification.type === 'offline'
+              "
+              [class.notification-icon--update]="
+                notification.type === 'update'
+              "
+              [class.notification-icon--protection]="
+                notification.type === 'protection'
+              "
+              [class.notification-icon--capacity]="
+                notification.type === 'capacity'
+              ">
+
+              @switch (notification.type) {
+                @case ('offline') {
+                  !
+                }
+
+                @case ('update') {
+                  ↑
+                }
+
+                @case ('protection') {
+                  ✓
+                }
+
+                @case ('capacity') {
+                  ⚠
+                }
+              }
+            </div>
+
+            <div class="notification-content">
+              <div class="notification-title-row">
+                <h3>
+                  {{
+                    notification.titleKey
+                      | translate:notification.params
+                  }}
+                </h3>
+
+                @if (!notification.read) {
+                  <span class="unread-dot"></span>
+                }
+              </div>
+
+              <p>
+                {{
+                  notification.messageKey
+                    | translate:notification.params
+                }}
+              </p>
+
+              <span class="notification-time">
+                {{ notification.timeKey | translate }}
+              </span>
+            </div>
+
+            @if (!notification.read) {
+              <button
+                type="button"
+                class="read-button"
+                (click)="markAsRead(notification.id)">
+
+                {{
+                  'notifications.markRead'
+                    | translate
+                }}
+              </button>
+            }
+          </article>
+        }
+      </div>
+
+    </section>
+  </main>
+</div>

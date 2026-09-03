@@ -1,0 +1,94 @@
+<div class="pro-sub-page">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Fornect Pro</p>
+
+      <h1>
+        {{ 'upgrade.title' | translate }}
+      </h1>
+
+      <p>
+        {{ 'upgrade.subtitle' | translate }}
+      </p>
+    </div>
+
+    <a routerLink="/pro" class="back-button">
+      {{ 'pro.backToDashboard' | translate }}
+    </a>
+  </header>
+
+  <main class="content">
+
+    <section class="card">
+      <div class="card-heading">
+        <div>
+          <span class="card-label">
+            {{ 'upgrade.currentLabel' | translate }}
+          </span>
+
+          <h2>
+            {{
+              'upgrade.currentPlan'
+                | translate:{
+                    users: connectedUsers,
+                    capacity: currentCapacity
+                  }
+            }}
+          </h2>
+        </div>
+      </div>
+
+      <p>
+        {{ 'upgrade.description' | translate }}
+      </p>
+    </section>
+
+    <section class="tiers">
+      @for (tier of tiers; track tier.users) {
+        <div
+          class="tier-card"
+          [class.current]="isCurrent(tier)">
+
+          <strong class="tier-users">
+            {{ tier.users }}
+          </strong>
+
+          <span class="tier-caption">
+            {{ 'pro.users' | translate }}
+          </span>
+
+          <span class="tier-description">
+            {{ tier.descriptionKey | translate }}
+          </span>
+
+          @if (isCurrent(tier)) {
+            <span class="tier-current">
+              {{ 'upgrade.currentTier' | translate }}
+            </span>
+          } @else {
+            <button
+              type="button"
+              class="primary-button"
+              (click)="requestUpgrade(tier)">
+              {{ 'upgrade.contactSales' | translate }}
+            </button>
+          }
+        </div>
+      }
+    </section>
+
+    @if (requestSent && selectedTier) {
+      <div class="success-message">
+        {{
+          'upgrade.requestSent'
+            | translate:{ users: selectedTier.users }
+        }}
+      </div>
+    }
+
+    <p class="note">
+      {{ 'upgrade.pricingNote' | translate }}
+    </p>
+
+  </main>
+</div>

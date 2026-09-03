@@ -1,0 +1,35 @@
+@if (visible) {
+  <div
+    class="connection-banner"
+    [class.error]="isError"
+    role="status">
+
+    <div class="banner-icon">
+      {{ isError ? '!' : '⚡' }}
+    </div>
+
+    <div class="banner-content">
+      <strong>
+        {{ titleKey | translate }}
+      </strong>
+
+      <p>
+        {{ descriptionKey | translate }}
+      </p>
+
+      <span class="banner-stale">
+        {{
+          'connection.lastKnown'
+            | translate:{ time: lastSyncedLabel }
+        }}
+      </span>
+    </div>
+
+    <button
+      type="button"
+      class="banner-retry"
+      (click)="retry()">
+      {{ 'connection.retry' | translate }}
+    </button>
+  </div>
+}

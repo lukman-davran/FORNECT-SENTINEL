@@ -2,42 +2,92 @@
   <header class="topbar">
     <div>
       <h1>Fornect</h1>
-      <p>Network protection dashboard</p>
+
+      <p>
+        {{ 'dashboard.title' | translate }}
+      </p>
     </div>
 
     <div class="header-actions">
+      <a
+        routerLink="/notifications"
+        class="notification-button"
+        [attr.aria-label]="'common.notifications' | translate"
+        [attr.title]="'common.notifications' | translate">
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true">
+          <path
+            d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"
+          />
+        </svg>
+
+        @if (unreadNotifications > 0) {
+          <span class="notification-badge">
+            {{ unreadNotifications }}
+          </span>
+        }
+      </a>
+
+      <a
+        routerLink="/settings"
+        class="settings-button"
+        [attr.aria-label]="'common.settings' | translate"
+        [attr.title]="'common.settings' | translate">
+
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true">
+          <path
+            d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
+          />
+          <path
+            d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.08A1.7 1.7 0 0 0 8.97 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3v-4h.08A1.7 1.7 0 0 0 4.6 8.94a1.7 1.7 0 0 0-.34-1.88L4.2 7l2.83-2.83.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 10 3.01V3h4v.08a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06L19.8 7l-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 20.96 10H21v4h-.08A1.7 1.7 0 0 0 19.4 15Z"
+          />
+        </svg>
+      </a>
+
       <div class="status">
         <span class="status-dot"></span>
-        Online
+        {{ 'common.online' | translate }}
       </div>
 
       <button
         type="button"
         class="logout-button"
         (click)="logout()">
-        Logout
+        {{ 'common.logout' | translate }}
       </button>
     </div>
   </header>
 
   <main class="dashboard-content">
+    <app-connection-banner />
+
     <section class="hero">
       <div>
-        <p class="eyebrow">Protection status</p>
+        <p class="eyebrow">
+          {{ 'dashboard.protectionStatus' | translate }}
+        </p>
 
         <h2>
           {{
-            networkPaused
-              ? 'Internet is paused'
-              : 'Your network is protected'
+            (
+              networkPaused
+                ? 'dashboard.internetPaused'
+                : 'dashboard.networkProtected'
+            ) | translate
           }}
         </h2>
 
         <p class="hero-text">
           {{
-            networkPaused
-              ? 'Internet access is currently paused for all devices.'
-              : 'Fornect is active and monitoring your network.'
+            (
+              networkPaused
+                ? 'dashboard.pausedMessage'
+                : 'dashboard.monitoring'
+            ) | translate
           }}
         </p>
       </div>
@@ -45,32 +95,44 @@
 
     <section class="stats-grid">
       <div class="stat-card">
-        <span class="stat-label">Devices online</span>
+        <span class="stat-label">
+          {{ 'dashboard.devicesOnline' | translate }}
+        </span>
         <strong>{{ devicesOnline }}</strong>
       </div>
 
       <div class="stat-card">
-        <span class="stat-label">Protected devices</span>
+        <span class="stat-label">
+          {{ 'dashboard.protectedDevices' | translate }}
+        </span>
         <strong>{{ protectedDevices }}</strong>
       </div>
 
       <div class="stat-card">
-        <span class="stat-label">Child profiles</span>
+        <span class="stat-label">
+          {{ 'dashboard.childProfiles' | translate }}
+        </span>
         <strong>{{ childProfiles }}</strong>
       </div>
 
       <div class="stat-card">
-        <span class="stat-label">Internet paused</span>
+        <span class="stat-label">
+          {{ 'dashboard.internetPausedCount' | translate }}
+        </span>
         <strong>{{ pausedDevices }}</strong>
       </div>
     </section>
 
     <section class="device-status-card">
       <div>
-        <p class="eyebrow">Fornect device</p>
+        <p class="eyebrow">
+          {{ 'dashboard.fornectDevice' | translate }}
+        </p>
+
         <h3>{{ fornectDevice.name }}</h3>
+
         <p class="device-status-text">
-          Main network protection device
+          {{ 'dashboard.mainDevice' | translate }}
         </p>
       </div>
 
@@ -78,59 +140,74 @@
         <span
           class="device-online-status"
           [class.offline]="!fornectDevice.online">
+
           <span class="status-dot"></span>
 
           {{
-            fornectDevice.online
-              ? 'Online'
-              : 'Offline'
+            (
+              fornectDevice.online
+                ? 'common.online'
+                : 'common.offline'
+            ) | translate
           }}
         </span>
 
         <div class="device-detail">
-          <span>Software</span>
+          <span>
+            {{ 'dashboard.software' | translate }}
+          </span>
+
           <strong>
             v{{ fornectDevice.softwareVersion }}
           </strong>
         </div>
 
         <div class="device-detail">
-          <span>Last seen</span>
-          <strong>{{ fornectDevice.lastSeen }}</strong>
+          <span>
+            {{ 'dashboard.lastSeen' | translate }}
+          </span>
+
+          <strong>
+            {{ 'dashboard.justNow' | translate }}
+          </strong>
         </div>
       </div>
     </section>
 
     <section class="quick-actions">
-      <h3>Quick actions</h3>
+      <h3>
+        {{ 'dashboard.quickActions' | translate }}
+      </h3>
 
       <div class="actions-grid">
         <button
           type="button"
           routerLink="/devices">
-          Devices
+          {{ 'dashboard.devices' | translate }}
         </button>
 
         <button
           type="button"
           (click)="toggleInternetPause()">
           {{
-            networkPaused
-              ? 'Resume internet'
-              : 'Pause internet'
+            (
+              networkPaused
+                ? 'dashboard.resumeInternet'
+                : 'dashboard.pauseInternet'
+            ) | translate
           }}
         </button>
 
         <button
           type="button"
           routerLink="/schedules">
-          Schedules
+          {{ 'dashboard.schedules' | translate }}
         </button>
 
         <button
           type="button"
           routerLink="/protection">
-          Protection
+          {{ 'dashboard.protection' | translate }}
         </button>
       </div>
     </section>

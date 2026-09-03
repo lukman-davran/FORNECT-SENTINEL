@@ -1,123 +1,353 @@
 ﻿<div class="protection-page">
   <header class="topbar">
     <div>
-      <p class="eyebrow">Protection</p>
+      <p class="eyebrow">
+        {{ 'protection.eyebrow' | translate }}
+      </p>
+
       <h1>{{ deviceName }}</h1>
-      <p class="subtitle">Manage the protection level for this device.</p>
+
+      <p class="subtitle">
+        {{ 'protection.subtitle' | translate }}
+      </p>
     </div>
 
     <button
       type="button"
       class="back-button"
       [routerLink]="['/devices', deviceId]">
-      Back to device
+      {{ 'protection.backToDevice' | translate }}
     </button>
   </header>
 
   <main class="content">
     <section class="protection-card">
+
       <div class="section-heading">
         <div>
-          <span class="card-label">Current protection</span>
+          <span class="card-label">
+            {{
+              'protection.levelSectionLabel'
+                | translate
+            }}
+          </span>
 
-          @if (pairingState === 'paired') {
-            <h2>Full Protection</h2>
-          } @else {
-            <h2>Standard Protection</h2>
-          }
+          <h2>{{ protectionStatusLabel }}</h2>
         </div>
 
-        @if (pairingState === 'paired') {
-          <span class="status-badge">Active</span>
+        @if (protectionEnabled) {
+          <span class="status-badge">
+            {{ 'protection.active' | translate }}
+          </span>
+        } @else {
+          <span
+            class="status-badge protection-off-badge">
+            {{ 'protection.off' | translate }}
+          </span>
         }
       </div>
 
-      <div class="protection-options">
-        <div
-          class="protection-option"
-          [class.selected]="pairingState !== 'paired'">
-          <div class="option-icon">DNS</div>
+      <div
+        class="protection-options"
+        role="radiogroup"
+        [attr.aria-label]="
+          'protection.levelSectionLabel' | translate
+        ">
 
-          <div>
-            <h3>Standard Protection</h3>
-            <p>
-              DNS filtering and basic network protection.
-              No certificate is required.
-            </p>
-          </div>
-        </div>
+        @for (option of levels; track option) {
+          <button
+            type="button"
+            role="radio"
+            class="protection-option"
+            [class.selected]="level === option"
+            [class.locked]="isLevelLocked(option)"
+            [attr.aria-checked]="level === option"
+            (click)="setLevel(option)">
 
-        <div
-          class="protection-option"
-          [class.selected]="pairingState === 'paired'">
-          <div class="option-icon">FULL</div>
+            <div class="option-icon">
+              {{ levelIcon(option) }}
+            </div>
 
-          <div>
-            <h3>Full Protection</h3>
-            <p>
-              Advanced protection for paired devices with an installed
-              Fornect protection certificate.
-            </p>
-          </div>
+            <div>
+              <h3>
+                {{ levelTitleKey(option) | translate }}
+              </h3>
+
+              <p>
+                {{
+                  levelDescriptionKey(option)
+                    | translate
+                }}
+              </p>
+
+              @if (isLevelLocked(option)) {
+                <small class="option-lock">
+                  {{
+                    'protection.requiresProfile'
+                      | translate
+                  }}
+                </small>
+              }
+            </div>
+          </button>
+        }
+      </div>
+
+      <p class="level-hint">
+        {{ 'protection.levelHint' | translate }}
+      </p>
+
+      <div class="protection-stat-card">
+        <div class="stat-icon">AD</div>
+
+        <div>
+          <span>
+            {{ 'protection.today' | translate }}
+          </span>
+
+          <strong>
+            {{ blockedAdsToday }}
+          </strong>
+
+          <p>
+            {{ 'protection.adsBlocked' | translate }}
+          </p>
         </div>
       </div>
 
-      <div class="pairing-section">
-        <span class="card-label">Certificate pairing</span>
+      <div
+        class="away-protection-card"
+        [class.away-protection-card--disabled]="
+          !protectionEnabled
+        ">
 
-        @if (pairingState === 'paired') {
-          <h3>Protection profile installed</h3>
+        <div>
+          <span class="card-label">
+            {{ 'protection.awayTitle' | translate }}
+          </span>
+
+          <h3>
+            {{ 'protection.awayHeading' | translate }}
+          </h3>
 
           <p>
-            This device is paired with Fornect and advanced protection is enabled.
+            {{
+              'protection.awayDescription'
+                | translate
+            }}
           </p>
+
+          @if (!protectionEnabled) {
+            <small>
+              {{
+                'protection.awayDisabled'
+                  | translate
+              }}
+            </small>
+          }
+        </div>
+
+        <button
+          type="button"
+          class="away-toggle"
+          [class.away-toggle--active]="
+            awayFromHomeEnabled &&
+            protectionEnabled
+          "
+          [disabled]="!protectionEnabled"
+          [attr.aria-pressed]="awayFromHomeEnabled"
+          (click)="toggleAwayFromHome()">
+
+          <span class="away-toggle-thumb"></span>
+
+          <strong>
+            {{
+              (
+                !protectionEnabled
+                  ? 'protection.paused'
+                  : awayFromHomeEnabled
+                    ? 'protection.on'
+                    : 'protection.off'
+              ) | translate
+            }}
+          </strong>
+        </button>
+      </div>
+
+      <div class="pairing-section">
+        <span class="card-label">
+          {{
+            'protection.certificatePairing'
+              | translate
+          }}
+        </span>
+
+        <p class="prerequisite-hint">
+          {{
+            'protection.certificatePrerequisite'
+              | translate
+          }}
+        </p>
+
+        @if (pairingState === 'paired') {
+          <h3>
+            {{
+              'protection.profileInstalled'
+                | translate
+            }}
+          </h3>
+
+          @if (!protectionEnabled) {
+            <p>
+              {{
+                'protection.pairedPaused'
+                  | translate
+              }}
+            </p>
+          } @else if (useFullProtection) {
+            <p>
+              {{
+                'protection.pairedEnabled'
+                  | translate
+              }}
+            </p>
+          } @else {
+            <p>
+              {{
+                'protection.pairedStandardChosen'
+                  | translate
+              }}
+            </p>
+          }
 
           <div class="pairing-status">
             <span class="status-dot"></span>
 
             <div>
-              <strong>Paired</strong>
-              <p>Certificate status verified.</p>
+              <strong>
+                {{ 'protection.paired' | translate }}
+              </strong>
+
+              <p>
+                {{
+                  'protection.certificateVerified'
+                    | translate
+                }}
+              </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            class="secondary-button"
-            (click)="resetPairing()">
-            Reinstall protection profile
-          </button>
+          <div class="pairing-actions">
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="startPairing()">
+              {{
+                'protection.reinstallProfile'
+                  | translate
+              }}
+            </button>
+
+            <button
+              type="button"
+              class="secondary-button"
+              (click)="removeCertificate()">
+              {{
+                'protection.removeProfile'
+                  | translate
+              }}
+            </button>
+          </div>
         }
 
         @if (pairingState === 'unpaired') {
-          <h3>Full Protection is not enabled</h3>
+          <h3>
+            {{
+              'protection.fullNotEnabled'
+                | translate
+            }}
+          </h3>
 
           <p>
-            Pair this device with Fornect to enable advanced protection.
+            {{
+              'protection.pairToEnable'
+                | translate
+            }}
           </p>
 
           <button
             type="button"
             class="primary-button"
             (click)="startPairing()">
-            Start pairing
+            {{
+              'protection.startPairing'
+                | translate
+            }}
           </button>
         }
 
         @if (pairingState === 'pairing') {
-          <h3>Install Fornect Protection Profile</h3>
+          <h3>
+            {{
+              'protection.installProfile'
+                | translate
+            }}
+          </h3>
 
           <p>
-            Follow the installation steps on this device, then confirm when the
-            protection profile has been installed.
+            {{
+              'protection.installInstructions'
+                | translate
+            }}
           </p>
+
+          <div class="cert-guide">
+            <div class="platform-tabs">
+              @for (
+                platform of certPlatforms;
+                track platform
+              ) {
+                <button
+                  type="button"
+                  [class.active]="certPlatform === platform"
+                  (click)="setCertPlatform(platform)">
+                  {{ platformLabelKey(platform) | translate }}
+                </button>
+              }
+            </div>
+
+            <ol class="cert-steps">
+              @for (step of certificateSteps; track step) {
+                <li>{{ step | translate }}</li>
+              }
+            </ol>
+
+            <p class="cert-note">
+              {{ platformNoteKey | translate }}
+            </p>
+
+            <p class="cert-note">
+              {{ 'protection.pinningNote' | translate }}
+            </p>
+          </div>
 
           <div class="pairing-progress">
             <span class="progress-spinner"></span>
 
             <div>
-              <strong>Waiting for confirmation</strong>
-              <p>Pairing is currently in progress.</p>
+              <strong>
+                {{
+                  'protection.waitingConfirmation'
+                    | translate
+                }}
+              </strong>
+
+              <p>
+                {{
+                  'protection.pairingInProgress'
+                    | translate
+                }}
+              </p>
             </div>
           </div>
 
@@ -126,39 +356,64 @@
               type="button"
               class="secondary-button"
               (click)="failPairing()">
-              Installation failed
+              {{
+                'protection.installationFailed'
+                  | translate
+              }}
             </button>
 
             <button
               type="button"
               class="primary-button"
               (click)="completePairing()">
-              Profile installed
+              {{
+                'protection.profileInstalledButton'
+                  | translate
+              }}
             </button>
           </div>
         }
 
         @if (pairingState === 'failed') {
-          <h3>Pairing failed</h3>
+          <h3>
+            {{
+              'protection.pairingFailed'
+                | translate
+            }}
+          </h3>
 
           <p>
-            Fornect could not verify the protection profile on this device.
+            {{
+              'protection.couldNotVerify'
+                | translate
+            }}
           </p>
 
           <div class="pairing-error">
-            <strong>Protection profile not verified</strong>
-            <p>Please try the installation again.</p>
+            <strong>
+              {{
+                'protection.notVerified'
+                  | translate
+              }}
+            </strong>
+
+            <p>
+              {{
+                'protection.tryInstallationAgain'
+                  | translate
+              }}
+            </p>
           </div>
 
           <button
             type="button"
             class="primary-button"
             (click)="startPairing()">
-            Try again
+            {{ 'protection.tryAgain' | translate }}
           </button>
         }
       </div>
+
     </section>
   </main>
 </div>
-

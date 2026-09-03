@@ -1,0 +1,54 @@
+:host {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.language-switch {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.language-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--fn-border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--fn-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+.language-switch button:hover {
+  border-color: var(--fn-border-strong);
+}
+
+.language-switch button.active {
+  border-color: var(--fn-orange);
+  background: var(--fn-orange-soft);
+  color: var(--fn-orange);
+}
+
+.flag {
+  width: 18px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 2px;
+  /* Tanka ivica da svijetle zastave ne nestanu na bijeloj podlozi. */
+  box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.12);
+}
+
+
+/* Dodirne mete na telefonu. Apple i Google preporucuju najmanje
+   44px; na misu ostaje kako je bilo, jer tamo je precizniji. */
+@media (pointer: coarse) {
+  .language-switch button {
+    min-height: 44px;
+  }
+}

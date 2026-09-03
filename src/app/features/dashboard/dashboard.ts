@@ -2,20 +2,26 @@
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/services/auth';
+import { NotificationService } from '../../core/services/notification';
+import { TranslatePipe } from '../../shared/pipes/translate';
 import {
   DeviceService,
   FornectNetworkDevice
 } from '../../core/services/device';
 
+import { isPausedAt } from '../../core/services/schedule';
+import { ConnectionBanner } from '../../shared/components/connection-banner/connection-banner';
+
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe, ConnectionBanner],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
 export class Dashboard {
   private readonly authService = inject(AuthService);
   private readonly deviceService = inject(DeviceService);
+  private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
 
   networkPaused = this.loadNetworkPaused();
@@ -26,6 +32,10 @@ export class Dashboard {
     softwareVersion: '0.1.0',
     lastSeen: 'Just now'
   };
+
+  get unreadNotifications(): number {
+    return this.notificationService.getUnreadCount();
+  }
 
   get devicesOnline(): number {
     return this.deviceService.devices()
@@ -54,7 +64,11 @@ export class Dashboard {
     }
 
     return this.deviceService.devices()
-      .filter(device => this.isPausedNow(device))
+      .filter(
+        device =>
+          device.online &&
+          this.isPausedNow(device)
+      )
       .length;
   }
 
@@ -103,62 +117,6 @@ export class Dashboard {
       return false;
     }
 
-    const schedule = device.schedule;
-
-    if (!schedule.enabled) {
-      return false;
-    }
-
-    const now = new Date();
-
-    const dayLabels = [
-      'Sun',
-      'Mon',
-      'Tue',
-      'Wed',
-      'Thu',
-      'Fri',
-      'Sat'
-    ];
-
-    const currentDay = dayLabels[now.getDay()];
-    const previousDay =
-      dayLabels[(now.getDay() + 6) % 7];
-
-    const currentMinutes =
-      now.getHours() * 60 + now.getMinutes();
-
-    const startMinutes =
-      Number(schedule.startHour) * 60 +
-      Number(schedule.startMinute);
-
-    const endMinutes =
-      Number(schedule.endHour) * 60 +
-      Number(schedule.endMinute);
-
-    const isSelected = (day: string) =>
-      schedule.days.some(
-        item => item.label === day && item.selected
-      );
-
-    if (startMinutes < endMinutes) {
-      return (
-        isSelected(currentDay) &&
-        currentMinutes >= startMinutes &&
-        currentMinutes < endMinutes
-      );
-    }
-
-    if (startMinutes > endMinutes) {
-      if (currentMinutes >= startMinutes) {
-        return isSelected(currentDay);
-      }
-
-      if (currentMinutes < endMinutes) {
-        return isSelected(previousDay);
-      }
-    }
-
-    return false;
+    return isPausedAt(device.schedule, new Date());
   }
 }

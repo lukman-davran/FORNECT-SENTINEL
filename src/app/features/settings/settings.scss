@@ -1,0 +1,313 @@
+﻿:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--fn-bg);
+  color: var(--fn-ink);
+}
+
+.topbar {
+  padding: 28px 40px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--fn-border);
+  background: white;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+.topbar p {
+  margin: 7px 0 0;
+  color: var(--fn-muted);
+}
+
+.eyebrow,
+.section-label {
+  margin: 0 0 6px !important;
+  color: var(--fn-orange) !important;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.back-button {
+  align-self: flex-start;
+  padding: 10px 14px;
+  border: 1px solid var(--fn-border);
+  border-radius: 10px;
+  background: white;
+  color: var(--fn-ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.settings-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 34px 24px 60px;
+  display: grid;
+  gap: 20px;
+}
+
+.settings-card {
+  padding: 26px;
+  border: 1px solid var(--fn-border);
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 10px 28px rgba(23, 32, 51, 0.04);
+}
+
+.section-heading {
+  margin-bottom: 20px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.section-heading > p:last-child {
+  margin: 7px 0 0;
+  color: var(--fn-muted);
+}
+
+.account-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.account-row > div {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f7f9fc;
+}
+
+.account-row span,
+.account-row strong {
+  display: block;
+}
+
+.account-row span {
+  margin-bottom: 5px;
+  color: #8a95a6;
+  font-size: 12px;
+}
+
+.language-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.language-option {
+  padding: 17px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--fn-border);
+  border-radius: 13px;
+  cursor: pointer;
+}
+
+.language-option.selected {
+  border-color: var(--fn-orange);
+  background: var(--fn-orange-soft);
+}
+
+.language-option span,
+.language-option strong {
+  display: block;
+}
+
+.language-option span {
+  margin-top: 3px;
+  color: #8a95a6;
+  font-size: 12px;
+}
+
+.preference-row {
+  padding: 17px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.preference-row strong,
+.preference-row span {
+  display: block;
+}
+
+.preference-row span {
+  margin-top: 4px;
+  color: #7b8798;
+  font-size: 13px;
+}
+
+.preference-row input {
+  width: 19px;
+  height: 19px;
+  accent-color: var(--fn-orange);
+}
+
+.save-row {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.primary-button {
+  padding: 11px 17px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--fn-orange);
+  color: white;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.saved-message,
+.success-message {
+  color: #34805d;
+  font-weight: 700;
+}
+
+.password-form {
+  max-width: 470px;
+  display: grid;
+  gap: 14px;
+}
+
+.password-form label span {
+  display: block;
+  margin-bottom: 6px;
+  color: #5c687a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.password-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #d5dce6;
+  border-radius: 9px;
+  font: inherit;
+}
+
+.password-form input:focus {
+  outline: 2px solid rgba(245, 130, 31, 0.15);
+  border-color: var(--fn-orange);
+}
+
+.demo-notice {
+  margin-bottom: 18px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  background: #fff7ed;
+  color: #8b5a27;
+  font-size: 13px;
+}
+
+.error-message {
+  margin: 0;
+  color: #b54747;
+  font-size: 13px;
+}
+
+.success-message {
+  margin: 0;
+  font-size: 13px;
+}
+
+
+.mode-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mode-option {
+  border: 1px solid var(--fn-border-strong);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--fn-ink);
+  padding: 11px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mode-option.active {
+  background: var(--fn-orange-btn);
+  border-color: var(--fn-orange-btn);
+  color: #ffffff;
+}
+
+.poc-note {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--fn-muted);
+}
+
+
+.option-flag {
+  width: 26px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.12);
+}
+
+@media (max-width: 650px) {
+  .topbar {
+    padding: 22px 18px;
+    flex-direction: column;
+  }
+
+  .settings-content {
+    padding: 24px 16px 40px;
+  }
+
+  .settings-card {
+    padding: 19px;
+  }
+
+  .account-row,
+  .language-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.help-link {
+  display: inline-flex;
+  margin-top: 12px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: var(--fn-orange);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+
+/* Dodirne mete na telefonu. Apple i Google preporucuju najmanje
+   44px; na misu ostaje kako je bilo, jer tamo je precizniji. */
+@media (pointer: coarse) {
+  .mode-option {
+    min-height: 44px;
+  }
+
+  .preference-row input {
+    width: 24px;
+    height: 24px;
+  }
+}

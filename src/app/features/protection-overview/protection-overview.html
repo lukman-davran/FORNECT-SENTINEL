@@ -1,55 +1,96 @@
 ﻿<div class="page">
   <header class="topbar">
     <div>
-      <a routerLink="/dashboard" class="brand">Fornect</a>
+      <a
+        routerLink="/dashboard"
+        class="brand">
+        Fornect
+      </a>
+
       <span class="separator">/</span>
-      <span>Protection</span>
+
+      <span>
+        {{ 'protectionOverview.title' | translate }}
+      </span>
     </div>
 
-    <a routerLink="/dashboard" class="back-button">
-      ← Dashboard
+    <a
+      routerLink="/dashboard"
+      class="back-button">
+      ← {{ 'protectionOverview.dashboard' | translate }}
     </a>
   </header>
 
   <main>
     <section class="hero">
       <div>
-        <p class="eyebrow">Network security</p>
-        <h1>Protection</h1>
+        <p class="eyebrow">
+          {{
+            'protectionOverview.networkSecurity'
+              | translate
+          }}
+        </p>
+
+        <h1>
+          {{ 'protectionOverview.title' | translate }}
+        </h1>
 
         <p>
-          Review how every device is protected and manage
-          certificate pairing for full Fornect protection.
+          {{
+            'protectionOverview.description'
+              | translate
+          }}
         </p>
       </div>
 
       <div class="hero-badge">
         <span class="hero-badge__dot"></span>
-        Protection active
+
+        {{ 'protectionOverview.active' | translate }}
       </div>
     </section>
 
     <section class="stats">
       <article>
-        <span>Full Protection</span>
+        <span>
+          {{ 'protectionOverview.full' | translate }}
+        </span>
+
         <strong>{{ fullProtectionCount }}</strong>
       </article>
 
       <article>
-        <span>Standard Protection</span>
+        <span>
+          {{ 'protectionOverview.standard' | translate }}
+        </span>
+
         <strong>{{ standardProtectionCount }}</strong>
       </article>
 
       <article>
-        <span>Needs setup</span>
+        <span>
+          {{ 'protectionOverview.needsSetup' | translate }}
+        </span>
+
         <strong>{{ needsSetupCount }}</strong>
       </article>
     </section>
 
     <section class="section-header">
       <div>
-        <p class="eyebrow">Protected devices</p>
-        <h2>Device protection</h2>
+        <p class="eyebrow">
+          {{
+            'protectionOverview.protectedDevices'
+              | translate
+          }}
+        </p>
+
+        <h2>
+          {{
+            'protectionOverview.deviceProtection'
+              | translate
+          }}
+        </h2>
       </div>
     </section>
 
@@ -57,8 +98,11 @@
       @for (device of devices; track device.id) {
         <article
           class="device-card"
-          [class.device-card--full]="device.protectionLevel === 'full'"
-        >
+          [class.device-card--full]="
+            device.protectionEnabled !== false &&
+            device.protectionLevel === 'full'
+          ">
+
           <div class="device">
             <div class="device-avatar">
               {{ device.name.charAt(0) }}
@@ -68,38 +112,49 @@
               <h3>{{ device.name }}</h3>
 
               <p>
-                {{ device.profile ?? 'Unassigned' }} profile
+                {{ getProfileLabel(device) }}
               </p>
             </div>
           </div>
 
           <div class="protection-level">
-            <span>Protection</span>
+            <span>
+              {{
+                'protectionOverview.protection'
+                  | translate
+              }}
+            </span>
 
             <strong>
               {{ getProtectionLabel(device) }}
             </strong>
 
             <small
-              [class.full]="device.protectionLevel === 'full'"
-            >
-              {{
+              [class.full]="
+                device.protectionEnabled !== false &&
                 device.protectionLevel === 'full'
-                  ? 'Firewall + DNS + certificate'
-                  : device.protectionLevel === 'standard'
-                    ? 'DNS and network protection'
-                    : 'Configuration required'
-              }}
+              ">
+
+              {{ getProtectionDescription(device) }}
             </small>
           </div>
 
           <div class="certificate">
-            <span>Certificate</span>
+            <span>
+              {{
+                'protectionOverview.certificate'
+                  | translate
+              }}
+            </span>
 
             <strong
-              [class.paired]="device.pairingState === 'paired'"
-              [class.failed]="device.pairingState === 'failed'"
-            >
+              [class.paired]="
+                device.pairingState === 'paired'
+              "
+              [class.failed]="
+                device.pairingState === 'failed'
+              ">
+
               {{ getPairingLabel(device) }}
             </strong>
           </div>
@@ -107,25 +162,52 @@
           <div class="actions">
             <span
               class="device-status"
-              [class.device-status--online]="device.online"
-            >
+              [class.device-status--online]="
+                device.online
+              ">
+
               <span></span>
-              {{ device.online ? 'Online' : 'Offline' }}
+
+              {{
+                (
+                  device.online
+                    ? 'common.online'
+                    : 'common.offline'
+                ) | translate
+              }}
             </span>
 
             <a
-              [routerLink]="['/devices', device.id, 'protection']"
-              class="manage-button"
-            >
-              Manage protection
+              [routerLink]="[
+                '/devices',
+                device.id,
+                'protection'
+              ]"
+              class="manage-button">
+
+              {{
+                'protectionOverview.manage'
+                  | translate
+              }}
             </a>
           </div>
         </article>
+
       } @empty {
+
         <div class="empty-state">
-          <h2>No devices yet</h2>
+          <h2>
+            {{
+              'protectionOverview.noDevices'
+                | translate
+            }}
+          </h2>
+
           <p>
-            Add a device before configuring protection.
+            {{
+              'protectionOverview.addDevice'
+                | translate
+            }}
           </p>
         </div>
       }

@@ -1,54 +1,90 @@
 ﻿<div class="page">
   <header class="topbar">
     <div>
-      <a routerLink="/dashboard" class="brand">Fornect</a>
+      <a
+        routerLink="/dashboard"
+        class="brand">
+        Fornect
+      </a>
+
       <span class="separator">/</span>
-      <span>Schedules</span>
+
+      <span>
+        {{ 'schedules.title' | translate }}
+      </span>
     </div>
 
-    <a routerLink="/dashboard" class="back-button">
-      ← Dashboard
+    <a
+      routerLink="/dashboard"
+      class="back-button">
+      ← {{ 'schedules.dashboard' | translate }}
     </a>
   </header>
 
   <main>
     <section class="hero">
       <div>
-        <p class="eyebrow">Device routines</p>
-        <h1>Schedules</h1>
+        <p class="eyebrow">
+          {{ 'schedules.deviceRoutines' | translate }}
+        </p>
+
+        <h1>
+          {{ 'schedules.title' | translate }}
+        </h1>
+
         <p>
-          Set healthy online hours and automatically pause
-          internet access when it is time to disconnect.
+          {{ 'schedules.heroDescription' | translate }}
         </p>
       </div>
 
       <div class="hero-badge">
         <span class="hero-badge__dot"></span>
-        Automatic control
+
+        {{ 'schedules.automaticControl' | translate }}
       </div>
     </section>
 
     <section class="stats">
       <article>
-        <span>Devices</span>
-        <strong>{{ devices.length }}</strong>
+        <span>
+          {{ 'schedules.devices' | translate }}
+        </span>
+
+        <strong>
+          {{ devices.length }}
+        </strong>
       </article>
 
       <article>
-        <span>Active schedules</span>
-        <strong>{{ activeSchedules }}</strong>
+        <span>
+          {{ 'schedules.activeSchedules' | translate }}
+        </span>
+
+        <strong>
+          {{ activeSchedules }}
+        </strong>
       </article>
 
       <article>
-        <span>Disabled</span>
-        <strong>{{ disabledSchedules }}</strong>
+        <span>
+          {{ 'schedules.disabled' | translate }}
+        </span>
+
+        <strong>
+          {{ disabledSchedules }}
+        </strong>
       </article>
     </section>
 
     <section class="section-header">
       <div>
-        <p class="eyebrow">Bedtime control</p>
-        <h2>Device schedules</h2>
+        <p class="eyebrow">
+          {{ 'schedules.bedtimeControl' | translate }}
+        </p>
+
+        <h2>
+          {{ 'schedules.deviceSchedules' | translate }}
+        </h2>
       </div>
     </section>
 
@@ -56,48 +92,84 @@
       @for (device of devices; track device.id) {
         <article
           class="schedule-card"
-          [class.schedule-card--active]="device.schedule.enabled"
-        >
+          [class.schedule-card--active]="
+            device.schedule.enabled
+          ">
+
           <div class="device">
             <div class="device-avatar">
               {{ device.name.charAt(0) }}
             </div>
 
             <div>
-              <h3>{{ device.name }}</h3>
+              <h3>
+                {{ device.name }}
+              </h3>
+
               <p>
-                {{ device.profile ?? 'Unassigned' }} profile
+                {{ getProfileLabel(device) }}
               </p>
             </div>
           </div>
 
           <div class="schedule-time">
-            <span>Bedtime</span>
-            <strong>{{ getScheduleLabel(device) }}</strong>
-            <small>{{ getDaysLabel(device) }}</small>
+            <span>
+              {{ 'schedules.bedtime' | translate }}
+            </span>
+
+            <strong>
+              {{ getScheduleLabel(device) }}
+            </strong>
+
+            <small>
+              {{ getDaysLabel(device) }}
+            </small>
           </div>
 
           <div class="schedule-actions">
             <span
               class="status"
-              [class.status--active]="device.schedule.enabled"
-            >
+              [class.status--active]="
+                device.schedule.enabled
+              ">
+
               <span></span>
-              {{ device.schedule.enabled ? 'Active' : 'Disabled' }}
+
+              {{
+                (
+                  device.schedule.enabled
+                    ? 'schedules.active'
+                    : 'schedules.disabled'
+                ) | translate
+              }}
             </span>
 
             <a
-              [routerLink]="['/devices', device.id, 'schedule']"
-              class="edit-button"
-            >
-              Edit schedule
+              [routerLink]="[
+                '/devices',
+                device.id,
+                'schedule'
+              ]"
+              class="edit-button">
+
+              {{
+                'schedules.editSchedule'
+                  | translate
+              }}
             </a>
           </div>
         </article>
+
       } @empty {
+
         <div class="empty-state">
-          <h2>No devices yet</h2>
-          <p>Add a device before creating a schedule.</p>
+          <h2>
+            {{ 'schedules.noDevices' | translate }}
+          </h2>
+
+          <p>
+            {{ 'schedules.addDevice' | translate }}
+          </p>
         </div>
       }
     </section>

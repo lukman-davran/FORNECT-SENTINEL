@@ -6,14 +6,29 @@ import {
   FornectNetworkDevice
 } from '../../core/services/device';
 
+import {
+  LanguageService
+} from '../../core/services/language';
+
+import {
+  TranslatePipe
+} from '../../shared/pipes/translate';
+
 @Component({
   selector: 'app-protection-overview',
-  imports: [RouterLink],
+  imports: [
+    RouterLink,
+    TranslatePipe
+  ],
   templateUrl: './protection-overview.html',
   styleUrl: './protection-overview.scss'
 })
 export class ProtectionOverview {
-  private readonly deviceService = inject(DeviceService);
+  private readonly deviceService =
+    inject(DeviceService);
+
+  private readonly languageService =
+    inject(LanguageService);
 
   get devices(): FornectNetworkDevice[] {
     return this.deviceService.devices();
@@ -21,48 +36,135 @@ export class ProtectionOverview {
 
   get fullProtectionCount(): number {
     return this.devices.filter(
-      device => device.protectionLevel === 'full'
+      device =>
+        device.protectionEnabled !== false &&
+        device.protectionLevel === 'full'
     ).length;
   }
 
   get standardProtectionCount(): number {
     return this.devices.filter(
-      device => device.protectionLevel === 'standard'
+      device =>
+        device.protectionEnabled !== false &&
+        device.protectionLevel === 'standard'
     ).length;
   }
 
   get needsSetupCount(): number {
     return this.devices.filter(
-      device => device.protectionLevel === 'needs-setup'
+      device =>
+        device.protectionLevel === 'needs-setup'
     ).length;
   }
 
-  getProtectionLabel(device: FornectNetworkDevice): string {
+  getProtectionLabel(
+    device: FornectNetworkDevice
+  ): string {
+    if (device.protectionEnabled === false) {
+      return this.languageService.t(
+        'protectionOverview.off'
+      );
+    }
+
     switch (device.protectionLevel) {
       case 'full':
-        return 'Full Protection';
+        return this.languageService.t(
+          'protectionOverview.full'
+        );
 
       case 'standard':
-        return 'Standard Protection';
+        return this.languageService.t(
+          'protectionOverview.standard'
+        );
 
-      case 'needs-setup':
-        return 'Needs setup';
+      default:
+        return this.languageService.t(
+          'protectionOverview.needsSetup'
+        );
     }
   }
 
-  getPairingLabel(device: FornectNetworkDevice): string {
-    switch (device.pairingState) {
-      case 'paired':
-        return 'Paired';
+  getProtectionDescription(
+    device: FornectNetworkDevice
+  ): string {
+    if (device.protectionEnabled === false) {
+      return this.languageService.t(
+        'protectionOverview.offDescription'
+      );
+    }
 
-      case 'pairing':
-        return 'Pairing';
+    switch (device.protectionLevel) {
+      case 'full':
+        return this.languageService.t(
+          'protectionOverview.fullDescription'
+        );
 
-      case 'failed':
-        return 'Pairing failed';
+      case 'standard':
+        return this.languageService.t(
+          'protectionOverview.standardDescription'
+        );
 
       default:
-        return 'Not paired';
+        return this.languageService.t(
+          'protectionOverview.setupDescription'
+        );
+    }
+  }
+
+  getPairingLabel(
+    device: FornectNetworkDevice
+  ): string {
+    switch (device.pairingState) {
+      case 'paired':
+        return this.languageService.t(
+          'protectionOverview.paired'
+        );
+
+      case 'pairing':
+        return this.languageService.t(
+          'protectionOverview.pairing'
+        );
+
+      case 'failed':
+        return this.languageService.t(
+          'protectionOverview.pairingFailed'
+        );
+
+      default:
+        return this.languageService.t(
+          'protectionOverview.notPaired'
+        );
+    }
+  }
+
+  getProfileLabel(
+    device: FornectNetworkDevice
+  ): string {
+    switch (device.profile) {
+      case 'Child':
+        return this.languageService.t(
+          'protectionOverview.childProfile'
+        );
+
+      case 'Teen':
+        return this.languageService.t(
+          'protectionOverview.teenProfile'
+        );
+
+      case 'Adult':
+        return this.languageService.t(
+          'protectionOverview.adultProfile'
+        );
+
+      case 'Admin':
+        return this.languageService.t(
+          'protectionOverview.adminProfile'
+        );
+
+      default:
+        return this.languageService.t(
+          'protectionOverview.unassigned'
+        );
     }
   }
 }

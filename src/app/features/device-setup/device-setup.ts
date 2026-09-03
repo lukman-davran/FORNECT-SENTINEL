@@ -1,15 +1,31 @@
 ﻿import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink
+} from '@angular/router';
 
 import { DeviceService } from '../../core/services/device';
+import { TranslatePipe } from '../../shared/pipes/translate';
 
-type DeviceProfile = 'Child' | 'Teen' | 'Adult' | 'Admin';
-type ProtectionLevel = 'standard' | 'full';
+type DeviceProfile =
+  'Child' |
+  'Teen' |
+  'Adult' |
+  'Admin';
+
+type ProtectionLevel =
+  'standard' |
+  'full';
 
 @Component({
   selector: 'app-device-setup',
-  imports: [FormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    RouterLink,
+    TranslatePipe
+  ],
   templateUrl: './device-setup.html',
   styleUrl: './device-setup.scss'
 })
@@ -18,10 +34,14 @@ export class DeviceSetup {
   private readonly router = inject(Router);
   private readonly deviceService = inject(DeviceService);
 
-  deviceId = this.route.snapshot.paramMap.get('id') ?? 'unknown-device';
+  deviceId =
+    this.route.snapshot.paramMap.get('id') ??
+    'unknown-device';
 
   deviceName = '';
+
   selectedProfile: DeviceProfile | null = null;
+
   protectionLevel: ProtectionLevel = 'standard';
 
   setProfile(profile: DeviceProfile): void {
@@ -33,7 +53,10 @@ export class DeviceSetup {
   }
 
   finishSetup(): void {
-    if (!this.deviceName.trim() || !this.selectedProfile) {
+    if (
+      !this.deviceName.trim() ||
+      !this.selectedProfile
+    ) {
       return;
     }
 
@@ -60,6 +83,9 @@ export class DeviceSetup {
       }
     );
 
-    this.router.navigate(['/devices', this.deviceId]);
+    this.router.navigate([
+      '/devices',
+      this.deviceId
+    ]);
   }
 }

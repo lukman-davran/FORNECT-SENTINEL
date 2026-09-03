@@ -1,0 +1,353 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: var(--fn-font);
+  background: var(--fn-bg);
+  color: var(--fn-ink);
+}
+
+.pro-page {
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 24px 32px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--fn-border);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.topbar p {
+  margin: 4px 0 0;
+  color: var(--fn-muted);
+  font-size: 14px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ghost-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--fn-border);
+  border-radius: 11px;
+  padding: 9px 13px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fn-ink);
+  text-decoration: none;
+}
+
+.badge-count {
+  min-width: 18px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 11px;
+  text-align: center;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status.offline {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.logout-button {
+  border: 1px solid var(--fn-border-strong);
+  border-radius: 11px;
+  background: #ffffff;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pro-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.hero {
+  padding: 32px;
+  border-radius: 24px;
+  background: var(--fn-ink);
+  color: #ffffff;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+}
+
+.hero h2 {
+  margin: 0 0 18px;
+  font-size: 32px;
+}
+
+.capacity-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+.capacity-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+.capacity-fill.warning {
+  background: #f59e0b;
+}
+
+.capacity-note {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--fn-border-strong);
+}
+
+.capacity-warning {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.capacity-warning strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.capacity-warning p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #fde68a;
+}
+
+.primary-button {
+  display: inline-block;
+  margin-top: 20px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--fn-ink);
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid var(--fn-border);
+}
+
+.stat-card span {
+  font-size: 12px;
+  color: var(--fn-muted);
+}
+
+.stat-card strong {
+  font-size: 18px;
+}
+
+.chart-card {
+  padding: 24px;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid var(--fn-border);
+  margin-bottom: 24px;
+}
+
+.card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.card-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fn-muted);
+}
+
+.card-heading h3 {
+  margin: 6px 0 0;
+  font-size: 18px;
+}
+
+.period-switch {
+  display: flex;
+  gap: 6px;
+}
+
+.period-switch button {
+  border: 1px solid var(--fn-border);
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.period-switch button.active {
+  background: var(--fn-orange-btn);
+  border-color: var(--fn-orange-btn);
+  color: #ffffff;
+}
+
+.chart svg {
+  width: 100%;
+  height: 200px;
+}
+
+.chart-area {
+  fill: rgba(17, 24, 39, 0.08);
+  stroke: none;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--fn-ink);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.chart-dot {
+  fill: var(--fn-ink);
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--fn-muted);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.action-card {
+  display: grid;
+  gap: 6px;
+  padding: 20px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid var(--fn-border);
+  text-decoration: none;
+  color: inherit;
+}
+
+.action-card strong {
+  font-size: 15px;
+}
+
+.action-card span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fn-muted);
+}
+
+@media (max-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar,
+  .pro-content {
+    padding: 20px;
+  }
+
+  .hero {
+    padding: 24px;
+  }
+
+  .hero h2 {
+    font-size: 26px;
+  }
+}
+
+/* Dodirne mete na telefonu. Apple i Google preporucuju najmanje
+   44px; na misu ostaje kako je bilo. */
+@media (pointer: coarse) {
+  .ghost-button {
+    min-height: 44px;
+  }
+
+  .logout-button {
+    min-height: 44px;
+  }
+
+  .primary-button {
+    min-height: 44px;
+  }
+
+  .period-switch button {
+    min-height: 44px;
+  }
+}

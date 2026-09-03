@@ -1,0 +1,365 @@
+﻿:host {
+  display: block;
+}
+
+.verify-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(245, 130, 31, 0.13),
+      transparent 32%
+    ),
+    var(--fn-bg);
+  color: var(--fn-ink);
+}
+
+.verify-card {
+  width: min(100%, 470px);
+  padding: 34px;
+  border: 1px solid var(--fn-border);
+  border-radius: 24px;
+  background: white;
+  box-shadow:
+    0 20px 50px rgba(23, 32, 51, 0.10);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--fn-orange);
+  color: white;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.brand p {
+  margin: 3px 0 0;
+  color: #7d899b;
+  font-size: 13px;
+}
+
+.content,
+.verified-state {
+  margin-top: 34px;
+}
+
+.mail-icon,
+.success-icon {
+  width: 58px;
+  height: 58px;
+  margin-bottom: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(245, 130, 31, 0.12);
+  color: var(--fn-orange);
+  font-size: 26px;
+}
+
+.heading h2,
+.verified-state h2 {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: -0.03em;
+}
+
+.heading p {
+  margin: 10px 0 4px;
+  color: var(--fn-muted);
+}
+
+.email {
+  font-size: 14px;
+}
+
+form {
+  margin-top: 26px;
+}
+
+.form-field {
+  display: grid;
+  gap: 8px;
+}
+
+.form-field label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-field input {
+  height: 52px;
+  padding: 0 15px;
+  border: 1px solid var(--fn-border);
+  border-radius: 11px;
+  font: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-align: center;
+  outline: none;
+}
+
+.form-field input:focus {
+  border-color: var(--fn-orange);
+  box-shadow:
+    0 0 0 3px rgba(245, 130, 31, 0.12);
+}
+
+.poc-hint {
+  margin: 10px 0 0;
+  color: #8a95a6;
+  font-size: 12px;
+  text-align: center;
+}
+
+.error-message,
+.success-message {
+  margin-top: 13px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.error-message {
+  background: #fff2f2;
+  color: #a94444;
+}
+
+.success-message {
+  background: #eef9f3;
+  color: #38835f;
+}
+
+.primary-button {
+  width: 100%;
+  min-height: 47px;
+  margin-top: 17px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--fn-orange-btn);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.resend-button {
+  width: 100%;
+  margin-top: 16px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: #56647a;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.back-link {
+  display: block;
+  margin-top: 13px;
+  color: #7a8699;
+  text-align: center;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.verified-state {
+  text-align: center;
+}
+
+.verified-state .success-icon {
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 50%;
+  background: rgba(68, 170, 114, 0.12);
+  color: #38835f;
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: #38835f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.verified-state > p:not(.eyebrow) {
+  color: var(--fn-muted);
+  line-height: 1.6;
+}
+
+.next-step {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--fn-bg);
+}
+
+.next-step span,
+.next-step strong {
+  display: block;
+}
+
+.next-step span {
+  margin-bottom: 5px;
+  color: #8490a2;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+@media (max-width: 520px) {
+  .verify-card {
+    padding: 26px 22px;
+  }
+}
+
+.next-step-card {
+  margin-top: 28px;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 15px;
+  text-align: left;
+  border: 1px solid rgba(245, 130, 31, 0.22);
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(245, 130, 31, 0.07),
+      rgba(245, 130, 31, 0.02)
+    );
+}
+
+.next-step-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--fn-orange);
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.next-step-content span,
+.next-step-content strong {
+  display: block;
+}
+
+.next-step-content span {
+  margin-bottom: 3px;
+  color: var(--fn-orange);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.next-step-content strong {
+  font-size: 15px;
+  color: var(--fn-ink);
+}
+
+.next-step-content p {
+  margin: 5px 0 0;
+  color: #7b8799;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.pair-device-button {
+  padding: 10px 14px;
+  white-space: nowrap;
+  border-radius: 9px;
+  background: var(--fn-orange-btn);
+  color: white;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.pair-device-button:hover {
+  transform: translateY(-1px);
+  background: #263a5c;
+}
+
+@media (max-width: 560px) {
+  .next-step-card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .pair-device-button {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+}
+
+.language-switch {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.language-switch button {
+  min-width: 36px;
+  height: 30px;
+  border: 1px solid var(--fn-border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--fn-muted);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.language-switch button.active {
+  border-color: var(--fn-orange);
+  background: var(--fn-orange-soft);
+  color: var(--fn-orange);
+}
+
+/* Kartica je grid element, a oni se po defaultu ne mogu skupiti
+   ispod sirine svog sadrzaja (`min-width: auto`). Na uskom
+   telefonu je zbog toga izlazila iz ekrana i pravila
+   horizontalni scroll. */
+.verify-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+
+/* Dodirne mete na telefonu. Apple i Google preporucuju najmanje
+   44px; na misu ostaje kako je bilo. */
+@media (pointer: coarse) {
+  .resend-button {
+    min-height: 44px;
+  }
+}

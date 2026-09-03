@@ -1,25 +1,40 @@
 ﻿<div class="schedule-page">
   <header class="topbar">
     <div>
-      <p class="eyebrow">Internet schedule</p>
+      <p class="eyebrow">
+        {{ 'schedule.eyebrow' | translate }}
+      </p>
+
       <h1>{{ deviceName }}</h1>
-      <p class="subtitle">Choose when internet access should be paused.</p>
+
+      <p class="subtitle">
+        {{ 'schedule.subtitle' | translate }}
+      </p>
     </div>
 
     <button
       type="button"
       class="back-button"
       [routerLink]="['/devices', deviceId]">
-      Back to device
+      {{ 'schedule.backToDevice' | translate }}
     </button>
   </header>
 
   <main class="content">
     <section class="schedule-card">
+
       <div class="section-heading">
         <div>
-          <span class="card-label">Bedtime</span>
-          <h2>Internet unavailable</h2>
+          <span class="card-label">
+            {{ 'schedule.bedtime' | translate }}
+          </span>
+
+          <h2>
+            {{
+              'schedule.internetUnavailable'
+                | translate
+            }}
+          </h2>
         </div>
 
         <label class="switch">
@@ -28,81 +43,209 @@
             [checked]="enabled"
             (change)="toggleSchedule()"
           />
+
           <span class="slider"></span>
         </label>
       </div>
 
-      <div class="time-grid">
-        <div class="form-field">
-          <label>From</label>
+      <div class="mode-switch">
+        <span class="field-label">
+          {{ 'schedule.modeLabel' | translate }}
+        </span>
 
-          <div class="time-picker">
-            <select [(ngModel)]="startHour">
-              @for (hour of hours; track hour) {
-                <option [value]="hour">{{ hour }}</option>
-              }
-            </select>
+        <div class="mode-buttons">
+          <button
+            type="button"
+            [class.active]="mode === 'sameEveryDay'"
+            (click)="setMode('sameEveryDay')">
+            {{ 'schedule.sameEveryDay' | translate }}
+          </button>
 
-            <span class="time-separator">:</span>
-
-            <select [(ngModel)]="startMinute">
-              @for (minute of minutes; track minute) {
-                <option [value]="minute">{{ minute }}</option>
-              }
-            </select>
-          </div>
+          <button
+            type="button"
+            [class.active]="mode === 'perDay'"
+            (click)="setMode('perDay')">
+            {{ 'schedule.perDay' | translate }}
+          </button>
         </div>
 
-        <div class="form-field">
-          <label>Until</label>
-
-          <div class="time-picker">
-            <select [(ngModel)]="endHour">
-              @for (hour of hours; track hour) {
-                <option [value]="hour">{{ hour }}</option>
-              }
-            </select>
-
-            <span class="time-separator">:</span>
-
-            <select [(ngModel)]="endMinute">
-              @for (minute of minutes; track minute) {
-                <option [value]="minute">{{ minute }}</option>
-              }
-            </select>
-          </div>
-        </div>
+        <p class="mode-hint">
+          {{ 'schedule.perDayHint' | translate }}
+        </p>
       </div>
 
-      <div class="days-section">
-        <label>Days</label>
+      @if (mode === 'sameEveryDay') {
+        <div class="time-grid">
+          <div class="form-field">
+            <label>
+              {{ 'schedule.from' | translate }}
+            </label>
 
-        <div class="days">
-          @for (day of days; track day.label; let i = $index) {
-            <button
-              type="button"
-              class="day"
-              [class.active]="day.selected"
-              (click)="toggleDay(i)">
-              {{ day.label }}
-            </button>
+            <div class="time-picker">
+              <select
+                [(ngModel)]="startHour"
+                (ngModelChange)="markChanged()">
+                @for (hour of hours; track hour) {
+                  <option [value]="hour">{{ hour }}</option>
+                }
+              </select>
+
+              <span class="time-separator">:</span>
+
+              <select
+                [(ngModel)]="startMinute"
+                (ngModelChange)="markChanged()">
+                @for (minute of minutes; track minute) {
+                  <option [value]="minute">{{ minute }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>
+              {{ 'schedule.until' | translate }}
+            </label>
+
+            <div class="time-picker">
+              <select
+                [(ngModel)]="endHour"
+                (ngModelChange)="markChanged()">
+                @for (hour of hours; track hour) {
+                  <option [value]="hour">{{ hour }}</option>
+                }
+              </select>
+
+              <span class="time-separator">:</span>
+
+              <select
+                [(ngModel)]="endMinute"
+                (ngModelChange)="markChanged()">
+                @for (minute of minutes; track minute) {
+                  <option [value]="minute">{{ minute }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="days-section">
+          <label>
+            {{ 'schedule.days' | translate }}
+          </label>
+
+          <div class="days">
+            @for (
+              day of days;
+              track day.label;
+              let i = $index
+            ) {
+              <button
+                type="button"
+                class="day"
+                [class.active]="day.selected"
+                (click)="toggleDay(i)">
+                {{ getDayLabel(day.label) }}
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="per-day-list">
+          @for (
+            day of days;
+            track day.label;
+            let i = $index
+          ) {
+            <div
+              class="per-day-row"
+              [class.selected]="day.selected">
+
+              <button
+                type="button"
+                class="day"
+                [class.active]="day.selected"
+                (click)="toggleDay(i)">
+                {{ getDayLabel(day.label) }}
+              </button>
+
+              @if (day.selected) {
+                <div class="time-picker">
+                  <select
+                    [(ngModel)]="day.startHour"
+                    (ngModelChange)="markChanged()">
+                    @for (hour of hours; track hour) {
+                      <option [value]="hour">{{ hour }}</option>
+                    }
+                  </select>
+
+                  <span class="time-separator">:</span>
+
+                  <select
+                    [(ngModel)]="day.startMinute"
+                    (ngModelChange)="markChanged()">
+                    @for (minute of minutes; track minute) {
+                      <option [value]="minute">{{ minute }}</option>
+                    }
+                  </select>
+                </div>
+
+                <span class="per-day-arrow">→</span>
+
+                <div class="time-picker">
+                  <select
+                    [(ngModel)]="day.endHour"
+                    (ngModelChange)="markChanged()">
+                    @for (hour of hours; track hour) {
+                      <option [value]="hour">{{ hour }}</option>
+                    }
+                  </select>
+
+                  <span class="time-separator">:</span>
+
+                  <select
+                    [(ngModel)]="day.endMinute"
+                    (ngModelChange)="markChanged()">
+                    @for (minute of minutes; track minute) {
+                      <option [value]="minute">{{ minute }}</option>
+                    }
+                  </select>
+                </div>
+              } @else {
+                <span class="per-day-off">
+                  {{ 'schedule.dayOff' | translate }}
+                </span>
+              }
+            </div>
           }
         </div>
-      </div>
+      }
 
       <div class="schedule-summary">
         <span class="summary-dot"></span>
 
         <div>
-          <strong>{{ enabled ? 'Active schedule' : 'Schedule disabled' }}</strong>
-          <p>{{ scheduleSummary }}</p>
+          <strong>
+            {{
+              (
+                enabled
+                  ? 'schedule.active'
+                  : 'schedule.disabled'
+              ) | translate
+            }}
+          </strong>
+
+          <p>
+            {{ scheduleSummary }}
+          </p>
         </div>
       </div>
 
       @if (saved) {
         <div class="save-success">
           <span>&#10003;</span>
-          Schedule saved successfully.
+
+          {{ 'schedule.saved' | translate }}
         </div>
       }
 
@@ -111,17 +254,17 @@
           type="button"
           class="cancel-button"
           [routerLink]="['/devices', deviceId]">
-          Cancel
+          {{ 'schedule.cancel' | translate }}
         </button>
 
         <button
           type="button"
           class="save-button"
           (click)="saveSchedule()">
-          Save schedule
+          {{ 'schedule.save' | translate }}
         </button>
       </div>
+
     </section>
   </main>
 </div>
-

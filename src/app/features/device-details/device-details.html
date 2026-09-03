@@ -1,13 +1,22 @@
 ﻿<div class="device-details-page">
   <header class="topbar">
     <div>
-      <p class="eyebrow">Device</p>
+      <p class="eyebrow">
+        {{ 'deviceDetails.device' | translate }}
+      </p>
+
       <h1>{{ device.name }}</h1>
-      <p class="subtitle">Manage profile, protection and internet access.</p>
+
+      <p class="subtitle">
+        {{ 'deviceDetails.subtitle' | translate }}
+      </p>
     </div>
 
-    <button type="button" class="back-button" routerLink="/devices">
-      Back to devices
+    <button
+      type="button"
+      class="back-button"
+      routerLink="/devices">
+      {{ 'deviceDetails.backToDevices' | translate }}
     </button>
   </header>
 
@@ -23,22 +32,78 @@
           }
         </div>
 
-        <div>
-          <h2>{{ device.name }}</h2>
+        <div class="device-name-area">
+          @if (renameOpen) {
+            <div class="rename-form">
+              <input
+                type="text"
+                name="deviceName"
+                [(ngModel)]="newDeviceName"
+                maxlength="40"
+                (keyup.enter)="saveRename()"
+                (keyup.escape)="cancelRename()"
+              />
+
+              <div class="rename-actions">
+                <button
+                  type="button"
+                  class="rename-save"
+                  (click)="saveRename()">
+                  {{ 'deviceDetails.save' | translate }}
+                </button>
+
+                <button
+                  type="button"
+                  class="rename-cancel"
+                  (click)="cancelRename()">
+                  {{ 'deviceDetails.cancel' | translate }}
+                </button>
+              </div>
+
+              @if (renameError) {
+                <small class="rename-error">
+                  {{ renameError }}
+                </small>
+              }
+            </div>
+          } @else {
+            <div class="device-title-row">
+              <h2>{{ device.name }}</h2>
+
+              <button
+                type="button"
+                class="rename-button"
+                (click)="openRename()">
+                {{ 'deviceDetails.rename' | translate }}
+              </button>
+            </div>
+          }
 
           <p>
             @if (currentProfile) {
-              {{ currentProfile }} profile
+              {{
+                'deviceDetails.profileAssigned'
+                  | translate:{ profile: profileName }
+              }}
             } @else {
-              No profile assigned
+              {{ 'devices.noProfile' | translate }}
             }
           </p>
         </div>
       </div>
 
       <div class="device-status">
-        <span [class.online]="device.online" [class.offline]="!device.online">
-          ● {{ device.online ? 'Online' : 'Offline' }}
+        <span
+          [class.online]="device.online"
+          [class.offline]="!device.online">
+          ●
+          {{
+            (
+              device.online
+                ? 'common.online'
+                : 'common.offline'
+            ) | translate
+          }}
         </span>
 
         <span class="protection-badge">
@@ -51,18 +116,24 @@
       <div class="settings-card">
         <div class="card-heading">
           <div>
-            <span class="card-label">Profile</span>
-            <h3>{{ currentProfile ?? 'Unassigned' }}</h3>
+            <span class="card-label">
+              {{ 'deviceDetails.profile' | translate }}
+            </span>
+
+            <h3>{{ profileName }}</h3>
           </div>
         </div>
 
         @if (currentProfile) {
           <p>
-            This device uses the {{ currentProfile }} protection profile.
+            {{
+              'deviceDetails.profileAssigned'
+                | translate:{ profile: profileName }
+            }}
           </p>
         } @else {
           <p>
-            Assign a profile to start managing this device.
+            {{ 'deviceDetails.assignProfile' | translate }}
           </p>
         }
 
@@ -72,28 +143,28 @@
               type="button"
               [class.active]="currentProfile === 'Child'"
               (click)="setProfile('Child')">
-              Child
+              {{ 'deviceDetails.child' | translate }}
             </button>
 
             <button
               type="button"
               [class.active]="currentProfile === 'Teen'"
               (click)="setProfile('Teen')">
-              Teen
+              {{ 'deviceDetails.teen' | translate }}
             </button>
 
             <button
               type="button"
               [class.active]="currentProfile === 'Adult'"
               (click)="setProfile('Adult')">
-              Adult
+              {{ 'deviceDetails.adult' | translate }}
             </button>
 
             <button
               type="button"
               [class.active]="currentProfile === 'Admin'"
               (click)="setProfile('Admin')">
-              Admin
+              {{ 'deviceDetails.admin' | translate }}
             </button>
           </div>
         } @else {
@@ -101,7 +172,7 @@
             type="button"
             class="secondary-button"
             (click)="toggleProfilePicker()">
-            Change profile
+            {{ 'deviceDetails.changeProfile' | translate }}
           </button>
         }
       </div>
@@ -109,90 +180,247 @@
       <div class="settings-card">
         <div class="card-heading">
           <div>
-            <span class="card-label">Protection</span>
+            <span class="card-label">
+              {{ 'deviceDetails.protection' | translate }}
+            </span>
+
             <h3>{{ protectionLabel }}</h3>
           </div>
         </div>
 
         <p>
-          Manage the protection level and Fornect Protection Profile.
+          {{ 'deviceDetails.manageProtection' | translate }}
         </p>
 
         <button
           type="button"
           class="secondary-button"
-          [routerLink]="['/devices', device.id, 'protection']">
-          Protection settings
+          [routerLink]="[
+            '/devices',
+            device.id,
+            'protection'
+          ]">
+          {{ 'deviceDetails.protectionSettings' | translate }}
         </button>
       </div>
 
       <div class="settings-card">
         <div class="card-heading">
           <div>
-            <span class="card-label">Internet schedule</span>
+            <span class="card-label">
+              {{ 'deviceDetails.internetSchedule' | translate }}
+            </span>
+
             <h3>{{ scheduleLabel }}</h3>
           </div>
         </div>
 
         @if (!device.schedule.enabled) {
-          <p>No automatic internet restrictions are configured.</p>
+          <p>
+            {{ 'deviceDetails.noRestrictions' | translate }}
+          </p>
         } @else {
-          <p>Internet access follows the configured bedtime schedule.</p>
+          <p>
+            {{ 'deviceDetails.followsBedtime' | translate }}
+          </p>
+
+          <div class="bedtime-status">
+            <span class="bedtime-status-dot"></span>
+
+            <div>
+              <span class="bedtime-status-label">
+                {{ 'deviceDetails.currentStatus' | translate }}
+              </span>
+
+              <strong>
+                {{ bedtimeStatus }}
+              </strong>
+            </div>
+          </div>
         }
 
         <button
           type="button"
           class="secondary-button"
-          [routerLink]="['/devices', device.id, 'schedule']">
-          Edit schedule
+          [routerLink]="[
+            '/devices',
+            device.id,
+            'schedule'
+          ]">
+          {{ 'deviceDetails.editSchedule' | translate }}
         </button>
       </div>
 
       <div class="settings-card">
         <div class="card-heading">
           <div>
-            <span class="card-label">Internet now</span>
+            <span class="card-label">
+              {{ 'deviceDetails.internetNow' | translate }}
+            </span>
 
             @if (overrideActive) {
-              <h3 class="allowed">Temporarily allowed</h3>
+              <h3 class="allowed">
+                {{
+                  'deviceDetails.temporarilyAllowed'
+                    | translate
+                }}
+              </h3>
             } @else {
-              <h3 class="paused">Paused</h3>
+              <h3 class="paused">
+                {{ 'deviceDetails.paused' | translate }}
+              </h3>
             }
           </div>
         </div>
 
         @if (overrideActive) {
           <p>
-            Internet access is temporarily allowed for
-            {{ overrideMinutes }} minutes.
+            {{ overrideStatusText }}
           </p>
 
           <button
             type="button"
             class="secondary-button"
             (click)="cancelOverride()">
-            End override
+            {{ 'deviceDetails.endOverride' | translate }}
           </button>
         } @else {
-          <p>Temporarily allow internet access outside the schedule.</p>
+          <p>
+            {{
+              'deviceDetails.allowOutsideSchedule'
+                | translate
+            }}
+          </p>
 
           <div class="override-actions">
-            <button type="button" (click)="allowTemporary(15)">
+            <button
+              type="button"
+              (click)="allowTemporary(15)">
               15 min
             </button>
 
-            <button type="button" (click)="allowTemporary(30)">
+            <button
+              type="button"
+              (click)="allowTemporary(30)">
               30 min
             </button>
 
-            <button type="button" (click)="allowTemporary(60)">
-              1 hour
+            <button
+              type="button"
+              (click)="allowTemporary(60)">
+              {{ 'deviceDetails.oneHour' | translate }}
+            </button>
+
+            <button
+              type="button"
+              (click)="allowUntilEndOfDay()">
+              {{
+                'deviceDetails.untilEndOfDay'
+                  | translate
+              }}
             </button>
           </div>
         }
       </div>
+
+      <div class="settings-card">
+        <div class="card-heading">
+          <div>
+            <span class="card-label">
+              {{ 'restrictions.label' | translate }}
+            </span>
+
+            <h3>
+              {{ 'restrictions.title' | translate }}
+            </h3>
+          </div>
+
+          <span
+            class="restrictions-badge"
+            [class.custom]="!usingProfileDefaults">
+            {{
+              (
+                usingProfileDefaults
+                  ? 'restrictions.profileDefaults'
+                  : 'restrictions.customized'
+              ) | translate
+            }}
+          </span>
+        </div>
+
+        <p>
+          {{
+            'restrictions.description'
+              | translate:{ profile: profileName }
+          }}
+        </p>
+
+        <div class="restriction-list">
+          @for (key of restrictionKeys; track key) {
+            <label class="restriction-item">
+              <span class="restriction-text">
+                <strong>
+                  {{ restrictionLabelKey(key) | translate }}
+                </strong>
+
+                <small>
+                  {{ restrictionHintKey(key) | translate }}
+                </small>
+              </span>
+
+              <input
+                type="checkbox"
+                [checked]="isRestrictionOn(key)"
+                (change)="toggleRestriction(key)" />
+            </label>
+          }
+        </div>
+
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="usingProfileDefaults"
+          (click)="resetRestrictions()">
+          {{ 'restrictions.reset' | translate }}
+        </button>
+      </div>
+
+      <div class="settings-card">
+        <div class="card-heading">
+          <div>
+            <span class="card-label">
+              {{ 'offlineAlert.label' | translate }}
+            </span>
+
+            <h3>
+              {{ 'offlineAlert.title' | translate }}
+            </h3>
+          </div>
+        </div>
+
+        <div class="restriction-list">
+          <label class="restriction-item">
+            <span class="restriction-text">
+              <strong>
+                {{ 'offlineAlert.toggle' | translate }}
+              </strong>
+
+              <small>
+                {{ 'offlineAlert.hint' | translate }}
+              </small>
+            </span>
+
+            <input
+              type="checkbox"
+              [checked]="offlineAlertEnabled"
+              (change)="toggleOfflineAlert()" />
+          </label>
+        </div>
+
+        <p class="offline-alert-note">
+          {{ 'offlineAlert.limitation' | translate }}
+        </p>
+      </div>
     </section>
   </main>
 </div>
-
-

@@ -1,9 +1,9 @@
 :host {
   display: block;
   min-height: 100vh;
-  font-family: Inter, Arial, sans-serif;
-  background: #f8fafc;
-  color: #111827;
+  font-family: var(--fn-font);
+  background: var(--fn-bg);
+  color: var(--fn-ink);
 }
 
 .devices-page {
@@ -17,12 +17,12 @@
   gap: 20px;
   padding: 24px 32px;
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--fn-border);
 }
 
 .eyebrow {
   margin: 0 0 6px;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -36,14 +36,14 @@
 
 .subtitle {
   margin: 6px 0 0;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 14px;
 }
 
 .back-button {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   background: #ffffff;
-  color: #111827;
+  color: var(--fn-ink);
   border-radius: 12px;
   padding: 11px 16px;
   font-size: 14px;
@@ -52,7 +52,7 @@
 }
 
 .back-button:hover {
-  background: #f9fafb;
+  background: var(--fn-surface-muted);
 }
 
 .devices-content {
@@ -70,14 +70,14 @@
 
 .summary-card {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--fn-border);
   border-radius: 18px;
   padding: 20px;
 }
 
 .summary-card span {
   display: block;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 14px;
   margin-bottom: 10px;
 }
@@ -88,7 +88,7 @@
 
 .device-list {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--fn-border);
   border-radius: 22px;
   padding: 24px;
 }
@@ -107,7 +107,7 @@
 
 .section-heading p {
   margin: 6px 0 0;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 14px;
 }
 
@@ -117,7 +117,7 @@
   align-items: center;
   gap: 20px;
   padding: 18px 0;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--fn-surface-muted);
 }
 
 .device-card:first-of-type {
@@ -136,7 +136,7 @@
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: #f3f4f6;
+  background: var(--fn-surface-muted);
   font-size: 22px;
 }
 
@@ -147,7 +147,7 @@
 
 .device-info p {
   margin: 5px 0 0;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 13px;
 }
 
@@ -196,10 +196,10 @@
 
 .manage-button {
   min-width: 92px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   border-radius: 11px;
   background: #ffffff;
-  color: #111827;
+  color: var(--fn-ink);
   padding: 10px 14px;
   font-size: 13px;
   font-weight: 700;
@@ -207,21 +207,72 @@
 }
 
 .manage-button:hover {
-  background: #f9fafb;
+  background: var(--fn-surface-muted);
 }
 
 .manage-button.primary {
-  background: #111827;
+  background: var(--fn-orange-btn);
   color: #ffffff;
-  border-color: #111827;
+  border-color: var(--fn-orange-btn);
 }
 
 .manage-button.primary:hover {
-  background: #1f2937;
+  background: var(--fn-orange-btn-strong);
 }
 
 .unassigned {
   background: #fffdf8;
+}
+
+
+.devices-empty {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 34px 20px 26px;
+}
+
+.devices-empty-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: var(--fn-surface-muted);
+  color: var(--fn-muted);
+}
+
+.devices-empty h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.devices-empty p {
+  margin: 0;
+  max-width: 420px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--fn-muted);
+}
+
+.devices-empty-action {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--fn-ink);
+  border-radius: 11px;
+  background: var(--fn-ink);
+  color: #ffffff;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.devices-empty-action:hover {
+  background: var(--fn-ink-soft);
 }
 
 @media (max-width: 800px) {
@@ -261,7 +312,7 @@
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: #111827;
+  background: var(--fn-ink);
   color: #ffffff;
   font-size: 12px;
   font-weight: 800;
@@ -297,4 +348,76 @@
 
 .connection-status.offline .connection-dot {
   background: #aeb6c2;
+}
+
+.device-limit-warning {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 24px;
+  padding: 18px 20px;
+  border: 1px solid #f7c98f;
+  border-radius: 14px;
+  background: #fff8ed;
+}
+
+.device-limit-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--fn-orange);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.device-limit-content {
+  flex: 1;
+}
+
+.device-limit-content strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #7a3e00;
+}
+
+.device-limit-content p {
+  margin: 0;
+  color: #8a5a2b;
+  line-height: 1.5;
+}
+
+.device-limit-action {
+  flex: 0 0 auto;
+  padding: 9px 13px;
+  border: 1px solid #e6a45b;
+  border-radius: 9px;
+  background: #fff;
+  color: #a45100;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@media (max-width: 700px) {
+  .device-limit-warning {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .device-limit-action {
+    margin-left: 52px;
+  }
+}
+
+
+/* Dodirne mete na telefonu. Apple i Google preporucuju najmanje
+   44px; na misu ostaje kako je bilo, jer tamo je precizniji. */
+@media (pointer: coarse) {
+  .manage-button {
+    min-height: 44px;
+  }
 }

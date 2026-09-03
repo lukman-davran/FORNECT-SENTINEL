@@ -1,9 +1,9 @@
 :host {
   display: block;
   min-height: 100vh;
-  font-family: Inter, Arial, sans-serif;
-  background: #f8fafc;
-  color: #111827;
+  font-family: var(--fn-font);
+  background: var(--fn-bg);
+  color: var(--fn-ink);
 }
 
 .setup-page {
@@ -17,12 +17,12 @@
   gap: 20px;
   padding: 24px 32px;
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--fn-border);
 }
 
 .eyebrow {
   margin: 0 0 6px;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -36,14 +36,14 @@
 
 .subtitle {
   margin: 6px 0 0;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 14px;
 }
 
 .back-button {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   background: #ffffff;
-  color: #111827;
+  color: var(--fn-ink);
   border-radius: 12px;
   padding: 11px 16px;
   font-size: 14px;
@@ -52,7 +52,7 @@
 }
 
 .back-button:hover {
-  background: #f9fafb;
+  background: var(--fn-surface-muted);
 }
 
 .content {
@@ -63,7 +63,7 @@
 
 .setup-card {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--fn-border);
   border-radius: 22px;
   padding: 28px;
 }
@@ -73,7 +73,7 @@
   grid-template-columns: 48px 1fr;
   gap: 18px;
   padding: 26px 0;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--fn-surface-muted);
 }
 
 .step:first-child {
@@ -86,7 +86,7 @@
   display: grid;
   place-items: center;
   border-radius: 12px;
-  background: #111827;
+  background: var(--fn-ink);
   color: #ffffff;
   font-weight: 800;
 }
@@ -94,7 +94,7 @@
 .step-label {
   display: block;
   margin-bottom: 6px;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -108,7 +108,7 @@
 
 .step-content p {
   margin: 0 0 18px;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -117,7 +117,7 @@
   width: 100%;
   height: 48px;
   box-sizing: border-box;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   border-radius: 12px;
   padding: 0 14px;
   font-size: 15px;
@@ -125,7 +125,7 @@
 }
 
 .step-content input:focus {
-  border-color: #111827;
+  border-color: var(--fn-ink);
   box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
 }
 
@@ -140,10 +140,10 @@
 .protection-grid button {
   min-height: 92px;
   text-align: left;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   border-radius: 14px;
   background: #ffffff;
-  color: #111827;
+  color: var(--fn-ink);
   padding: 16px;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
@@ -152,14 +152,14 @@
 .profile-grid button:hover,
 .protection-grid button:hover {
   border-color: #9ca3af;
-  background: #f9fafb;
+  background: var(--fn-surface-muted);
 }
 
 .profile-grid button.active,
 .protection-grid button.active {
-  border-color: #111827;
-  background: #f9fafb;
-  box-shadow: 0 0 0 1px #111827;
+  border-color: var(--fn-orange-btn);
+  background: var(--fn-surface-muted);
+  box-shadow: 0 0 0 1px var(--fn-ink);
 }
 
 .profile-grid strong,
@@ -171,7 +171,7 @@
 
 .profile-grid span,
 .protection-grid span {
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 13px;
   line-height: 1.4;
 }
@@ -194,14 +194,14 @@
 }
 
 .cancel-button {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   background: #ffffff;
-  color: #111827;
+  color: var(--fn-ink);
 }
 
 .finish-button {
-  border: 1px solid #111827;
-  background: #111827;
+  border: 1px solid var(--fn-orange-btn);
+  background: var(--fn-orange-btn);
   color: #ffffff;
 }
 
@@ -211,11 +211,11 @@
 }
 
 .cancel-button:hover {
-  background: #f9fafb;
+  background: var(--fn-surface-muted);
 }
 
 .finish-button:not(:disabled):hover {
-  background: #1f2937;
+  background: var(--fn-orange-btn-strong);
 }
 
 @media (max-width: 700px) {

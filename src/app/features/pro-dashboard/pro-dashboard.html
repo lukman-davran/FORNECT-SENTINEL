@@ -1,0 +1,224 @@
+<div class="pro-page">
+  <header class="topbar">
+    <div>
+      <h1>Fornect</h1>
+
+      <p>
+        {{ 'pro.title' | translate }}
+        &middot;
+        {{ modeLabelKey | translate }}
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a
+        routerLink="/notifications"
+        class="ghost-button">
+        {{ 'common.notifications' | translate }}
+
+        @if (unreadNotifications > 0) {
+          <span class="badge-count">
+            {{ unreadNotifications }}
+          </span>
+        }
+      </a>
+
+      <a
+        routerLink="/settings"
+        class="ghost-button">
+        {{ 'common.settings' | translate }}
+      </a>
+
+      <div
+        class="status"
+        [class.offline]="!hub.online">
+        <span class="status-dot"></span>
+        {{
+          (hub.online ? 'common.online' : 'common.offline')
+            | translate
+        }}
+      </div>
+
+      <button
+        type="button"
+        class="logout-button"
+        (click)="logout()">
+        {{ 'common.logout' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <main class="pro-content">
+
+    <app-connection-banner />
+
+    <section class="hero">
+      <p class="eyebrow">
+        {{ 'pro.capacityLabel' | translate }}
+      </p>
+
+      <h2>
+        {{ hub.connectedUsers }} / {{ hub.capacity }}
+        {{ 'pro.users' | translate }}
+      </h2>
+
+      <div class="capacity-bar">
+        <div
+          class="capacity-fill"
+          [class.warning]="nearCapacity"
+          [style.width.%]="capacityPercent">
+        </div>
+      </div>
+
+      <p class="capacity-note">
+        {{
+          'pro.capacityUsed'
+            | translate:{ percent: capacityPercent }
+        }}
+      </p>
+
+      @if (nearCapacity) {
+        <div class="capacity-warning">
+          <strong>
+            {{ 'pro.nearLimitTitle' | translate }}
+          </strong>
+
+          <p>
+            {{ 'pro.nearLimitDescription' | translate }}
+          </p>
+        </div>
+      }
+
+      <a routerLink="/pro/upgrade" class="primary-button">
+        {{ 'pro.upgradeCapacity' | translate }}
+      </a>
+    </section>
+
+    <section class="stats">
+      <div class="stat-card">
+        <span>{{ 'pro.device' | translate }}</span>
+        <strong>{{ hub.name }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>{{ 'pro.software' | translate }}</span>
+        <strong>{{ hub.softwareVersion }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>{{ 'pro.serialNumber' | translate }}</span>
+        <strong>{{ hub.serialNumber }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>{{ 'pro.peakLoad' | translate }}</span>
+        <strong>{{ peakLoad }}</strong>
+      </div>
+    </section>
+
+    <section class="chart-card">
+      <div class="card-heading">
+        <div>
+          <span class="card-label">
+            {{ 'pro.networkLoad' | translate }}
+          </span>
+
+          <h3>
+            {{
+              'pro.averageUsers'
+                | translate:{ count: averageLoad }
+            }}
+          </h3>
+        </div>
+
+        <div class="period-switch">
+          @for (item of periods; track item) {
+            <button
+              type="button"
+              [class.active]="period === item"
+              (click)="setPeriod(item)">
+              {{ periodLabelKey(item) | translate }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="chart">
+        <svg
+          viewBox="0 0 640 180"
+          role="img"
+          [attr.aria-label]="'pro.networkLoad' | translate">
+
+          <polyline
+            class="chart-area"
+            [attr.points]="chartArea" />
+
+          <polyline
+            class="chart-line"
+            [attr.points]="chartLine" />
+
+          @for (point of chartPoints; track point.label) {
+            <circle
+              class="chart-dot"
+              [attr.cx]="point.x"
+              [attr.cy]="point.y"
+              r="4" />
+          }
+        </svg>
+
+        <div class="chart-labels">
+          @for (point of chartPoints; track point.label) {
+            <span>{{ point.label }}</span>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="actions">
+      @if (mode === 'hospitality') {
+        <a routerLink="/pro/guests" class="action-card">
+          <strong>
+            {{ 'hospitality.title' | translate }}
+          </strong>
+
+          <span>
+            {{ 'hospitality.subtitle' | translate }}
+          </span>
+        </a>
+      }
+
+      @if (mode === 'agency') {
+        <a routerLink="/pro/monitoring" class="action-card">
+          <strong>
+            {{ 'agency.title' | translate }}
+          </strong>
+
+          <span>
+            {{ 'agency.subtitle' | translate }}
+          </span>
+        </a>
+      }
+
+      <a routerLink="/pro/upgrade" class="action-card">
+        <strong>
+          {{ 'upgrade.title' | translate }}
+        </strong>
+
+        <span>
+          {{ 'upgrade.subtitle' | translate }}
+        </span>
+      </a>
+
+      <a routerLink="/help" class="action-card">
+        <strong>
+          {{ 'help.title' | translate }}
+        </strong>
+
+        <span>
+          {{ 'help.subtitle' | translate }}
+        </span>
+      </a>
+    </section>
+
+  </main>
+</div>

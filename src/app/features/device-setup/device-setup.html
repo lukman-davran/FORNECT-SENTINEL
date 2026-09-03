@@ -1,10 +1,16 @@
 ﻿<div class="setup-page">
   <header class="topbar">
     <div>
-      <p class="eyebrow">Device setup</p>
-      <h1>Set up new device</h1>
+      <p class="eyebrow">
+        {{ 'deviceSetup.eyebrow' | translate }}
+      </p>
+
+      <h1>
+        {{ 'deviceSetup.title' | translate }}
+      </h1>
+
       <p class="subtitle">
-        Name the device, choose a profile and select its protection level.
+        {{ 'deviceSetup.subtitle' | translate }}
       </p>
     </div>
 
@@ -12,24 +18,35 @@
       type="button"
       class="back-button"
       routerLink="/devices">
-      Back to devices
+      {{ 'deviceSetup.backToDevices' | translate }}
     </button>
   </header>
 
   <main class="content">
     <section class="setup-card">
+
       <div class="step">
         <div class="step-number">1</div>
 
         <div class="step-content">
-          <span class="step-label">Device name</span>
-          <h2>What device is this?</h2>
-          <p>Give it a name that will be easy to recognize later.</p>
+          <span class="step-label">
+            {{ 'deviceSetup.deviceName' | translate }}
+          </span>
+
+          <h2>
+            {{ 'deviceSetup.whatDevice' | translate }}
+          </h2>
+
+          <p>
+            {{ 'deviceSetup.nameHint' | translate }}
+          </p>
 
           <input
             type="text"
             [(ngModel)]="deviceName"
-            placeholder="e.g. Amina's tablet"
+            [placeholder]="
+              'deviceSetup.namePlaceholder' | translate
+            "
           />
         </div>
       </div>
@@ -38,41 +55,85 @@
         <div class="step-number">2</div>
 
         <div class="step-content">
-          <span class="step-label">Profile</span>
-          <h2>Who uses this device?</h2>
-          <p>Choose the protection profile for this device.</p>
+          <span class="step-label">
+            {{ 'deviceSetup.profile' | translate }}
+          </span>
+
+          <h2>
+            {{ 'deviceSetup.whoUses' | translate }}
+          </h2>
+
+          <p>
+            {{ 'deviceSetup.chooseProfile' | translate }}
+          </p>
 
           <div class="profile-grid">
             <button
               type="button"
               [class.active]="selectedProfile === 'Child'"
               (click)="setProfile('Child')">
-              <strong>Child</strong>
-              <span>Strict parental protection</span>
+
+              <strong>
+                {{ 'deviceSetup.child' | translate }}
+              </strong>
+
+              <span>
+                {{
+                  'deviceSetup.childDescription'
+                    | translate
+                }}
+              </span>
             </button>
 
             <button
               type="button"
               [class.active]="selectedProfile === 'Teen'"
               (click)="setProfile('Teen')">
-              <strong>Teen</strong>
-              <span>Balanced parental controls</span>
+
+              <strong>
+                {{ 'deviceSetup.teen' | translate }}
+              </strong>
+
+              <span>
+                {{
+                  'deviceSetup.teenDescription'
+                    | translate
+                }}
+              </span>
             </button>
 
             <button
               type="button"
               [class.active]="selectedProfile === 'Adult'"
               (click)="setProfile('Adult')">
-              <strong>Adult</strong>
-              <span>Standard network protection</span>
+
+              <strong>
+                {{ 'deviceSetup.adult' | translate }}
+              </strong>
+
+              <span>
+                {{
+                  'deviceSetup.adultDescription'
+                    | translate
+                }}
+              </span>
             </button>
 
             <button
               type="button"
               [class.active]="selectedProfile === 'Admin'"
               (click)="setProfile('Admin')">
-              <strong>Admin</strong>
-              <span>Owner or trusted device</span>
+
+              <strong>
+                {{ 'deviceSetup.admin' | translate }}
+              </strong>
+
+              <span>
+                {{
+                  'deviceSetup.adminDescription'
+                    | translate
+                }}
+              </span>
             </button>
           </div>
         </div>
@@ -82,25 +143,64 @@
         <div class="step-number">3</div>
 
         <div class="step-content">
-          <span class="step-label">Protection</span>
-          <h2>Choose protection level</h2>
-          <p>You can change this later from device settings.</p>
+          <span class="step-label">
+            {{ 'deviceSetup.protection' | translate }}
+          </span>
+
+          <h2>
+            {{
+              'deviceSetup.chooseProtection'
+                | translate
+            }}
+          </h2>
+
+          <p>
+            {{ 'deviceSetup.changeLater' | translate }}
+          </p>
 
           <div class="protection-grid">
             <button
               type="button"
-              [class.active]="protectionLevel === 'standard'"
+              [class.active]="
+                protectionLevel === 'standard'
+              "
               (click)="setProtection('standard')">
-              <strong>Standard Protection</strong>
-              <span>DNS filtering and basic network protection</span>
+
+              <strong>
+                {{
+                  'deviceSetup.standardProtection'
+                    | translate
+                }}
+              </strong>
+
+              <span>
+                {{
+                  'deviceSetup.standardDescription'
+                    | translate
+                }}
+              </span>
             </button>
 
             <button
               type="button"
-              [class.active]="protectionLevel === 'full'"
+              [class.active]="
+                protectionLevel === 'full'
+              "
               (click)="setProtection('full')">
-              <strong>Full Protection</strong>
-              <span>Advanced protection with Fornect Protection Profile</span>
+
+              <strong>
+                {{
+                  'deviceSetup.fullProtection'
+                    | translate
+                }}
+              </strong>
+
+              <span>
+                {{
+                  'deviceSetup.fullDescription'
+                    | translate
+                }}
+              </span>
             </button>
           </div>
         </div>
@@ -111,17 +211,21 @@
           type="button"
           class="cancel-button"
           routerLink="/devices">
-          Cancel
+          {{ 'deviceSetup.cancel' | translate }}
         </button>
 
         <button
           type="button"
           class="finish-button"
-          [disabled]="!deviceName.trim() || !selectedProfile"
+          [disabled]="
+            !deviceName.trim() ||
+            !selectedProfile
+          "
           (click)="finishSetup()">
-          Finish setup
+          {{ 'deviceSetup.finish' | translate }}
         </button>
       </div>
+
     </section>
   </main>
 </div>

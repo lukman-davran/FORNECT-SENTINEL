@@ -1,0 +1,201 @@
+<div class="pro-sub-page">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Fornect Pro</p>
+
+      <h1>
+        {{ 'hospitality.title' | translate }}
+      </h1>
+
+      <p>
+        {{ 'hospitality.subtitle' | translate }}
+      </p>
+    </div>
+
+    <a routerLink="/pro" class="back-button">
+      {{ 'pro.backToDashboard' | translate }}
+    </a>
+  </header>
+
+  <main class="content">
+
+    <section class="card">
+      <div class="card-heading">
+        <div>
+          <span class="card-label">
+            {{ 'hospitality.guestProtection' | translate }}
+          </span>
+
+          <h2>
+            {{
+              (
+                autoProtectGuests
+                  ? 'hospitality.autoProtectOn'
+                  : 'hospitality.autoProtectOff'
+              ) | translate
+            }}
+          </h2>
+        </div>
+
+        <span
+          class="pill"
+          [class.on]="autoProtectGuests">
+          {{
+            (autoProtectGuests ? 'common.on' : 'common.off')
+              | translate
+          }}
+        </span>
+      </div>
+
+      <p>
+        {{ 'hospitality.autoProtectDescription' | translate }}
+      </p>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="toggleAutoProtect()">
+        {{
+          (
+            autoProtectGuests
+              ? 'hospitality.turnOff'
+              : 'hospitality.turnOn'
+          ) | translate
+        }}
+      </button>
+
+      <p class="note">
+        {{ 'hospitality.noParentalControl' | translate }}
+      </p>
+    </section>
+
+    <section class="stats">
+      <div class="stat-card">
+        <span>
+          {{ 'hospitality.connectedNow' | translate }}
+        </span>
+        <strong>{{ connectedGuests }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>
+          {{ 'hospitality.guestsToday' | translate }}
+        </span>
+        <strong>{{ guestsToday }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>
+          {{ 'hospitality.guestsThisWeek' | translate }}
+        </span>
+        <strong>{{ guestsThisWeek }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>
+          {{ 'hospitality.averageSession' | translate }}
+        </span>
+        <strong>
+          {{
+            'hospitality.minutes'
+              | translate:{ minutes: averageSessionMinutes }
+          }}
+        </strong>
+      </div>
+    </section>
+
+    <p class="privacy-note">
+      {{ 'hospitality.privacyNote' | translate }}
+    </p>
+
+    <section class="card">
+      <div class="card-heading">
+        <div>
+          <span class="card-label">
+            {{ 'hospitality.splashLabel' | translate }}
+          </span>
+
+          <h2>
+            {{ 'hospitality.splashTitle' | translate }}
+          </h2>
+        </div>
+      </div>
+
+      <p>
+        {{ 'hospitality.splashDescription' | translate }}
+      </p>
+
+      <div class="splash-editor">
+        <form (ngSubmit)="saveSplash()">
+          <label>
+            <span>
+              {{ 'hospitality.brandName' | translate }}
+            </span>
+
+            <input
+              type="text"
+              name="brandName"
+              maxlength="30"
+              [(ngModel)]="splash.brandName" />
+          </label>
+
+          <label>
+            <span>
+              {{ 'hospitality.headline' | translate }}
+            </span>
+
+            <input
+              type="text"
+              name="headline"
+              maxlength="40"
+              [(ngModel)]="splash.headline" />
+          </label>
+
+          <label>
+            <span>
+              {{ 'hospitality.message' | translate }}
+            </span>
+
+            <textarea
+              name="message"
+              rows="3"
+              maxlength="160"
+              [(ngModel)]="splash.message">
+            </textarea>
+          </label>
+
+          @if (saved) {
+            <div class="success-message">
+              {{ 'hospitality.splashSaved' | translate }}
+            </div>
+          }
+
+          <button type="submit" class="primary-button">
+            {{ 'common.save' | translate }}
+          </button>
+        </form>
+
+        <div class="splash-preview">
+          <span class="preview-label">
+            {{ 'hospitality.preview' | translate }}
+          </span>
+
+          <div class="preview-screen">
+            <div class="preview-logo">
+              {{ splash.brandName }}
+            </div>
+
+            <strong>{{ splash.headline }}</strong>
+
+            <p>{{ splash.message }}</p>
+
+            <span class="preview-button">
+              {{ 'hospitality.connect' | translate }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>

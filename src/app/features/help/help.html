@@ -1,0 +1,200 @@
+﻿<div class="help-page">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Fornect</p>
+
+      <h1>
+        {{ 'help.title' | translate }}
+      </h1>
+
+      <p>
+        {{ 'help.subtitle' | translate }}
+      </p>
+    </div>
+
+    <div class="topbar-actions">
+      <a
+        routerLink="/settings"
+        class="back-button">
+        {{ 'help.backToSettings' | translate }}
+      </a>
+
+      <a
+        routerLink="/dashboard"
+        class="back-button">
+        {{ 'common.backToDashboard' | translate }}
+      </a>
+    </div>
+  </header>
+
+  <main class="help-content">
+
+    <section class="intro-card">
+      <p class="section-label">
+        {{ 'help.faqLabel' | translate }}
+      </p>
+
+      <h2>
+        {{ 'help.faqTitle' | translate }}
+      </h2>
+
+      <p>
+        {{ 'help.faqDescription' | translate }}
+      </p>
+    </section>
+
+    <section class="faq-list">
+
+      <details>
+        <summary>
+          {{ 'help.deviceOfflineQuestion' | translate }}
+        </summary>
+
+        <p>
+          {{ 'help.deviceOfflineAnswer' | translate }}
+        </p>
+      </details>
+
+      <details>
+        <summary>
+          {{ 'help.profilesQuestion' | translate }}
+        </summary>
+
+        <p>
+          {{ 'help.profilesAnswer' | translate }}
+        </p>
+      </details>
+
+      <details>
+        <summary>
+          {{ 'help.scheduleQuestion' | translate }}
+        </summary>
+
+        <p>
+          {{ 'help.scheduleAnswer' | translate }}
+        </p>
+      </details>
+
+      <details>
+        <summary>
+          {{ 'help.protectionQuestion' | translate }}
+        </summary>
+
+        <p>
+          {{ 'help.protectionAnswer' | translate }}
+        </p>
+      </details>
+
+      <details>
+        <summary>
+          {{ 'help.pairingQuestion' | translate }}
+        </summary>
+
+        <p>
+          {{ 'help.pairingAnswer' | translate }}
+        </p>
+      </details>
+
+      <details>
+        <summary>
+          {{ 'help.overrideQuestion' | translate }}
+        </summary>
+
+        <p>
+          {{ 'help.overrideAnswer' | translate }}
+        </p>
+      </details>
+
+    </section>
+
+    <section class="support-card">
+      <div class="section-heading">
+        <p class="section-label">
+          {{ 'help.supportLabel' | translate }}
+        </p>
+
+        <h2>
+          {{ 'help.contactSupport' | translate }}
+        </h2>
+
+        <p>
+          {{ 'help.supportDescription' | translate }}
+        </p>
+      </div>
+
+      <form (ngSubmit)="submitSupport()">
+
+        <label>
+          <span>
+            {{ 'help.category' | translate }}
+          </span>
+
+          <select
+            name="supportCategory"
+            [(ngModel)]="supportCategory">
+
+            <option value="general">
+              {{ 'help.categoryGeneral' | translate }}
+            </option>
+
+            <option value="device">
+              {{ 'help.categoryDevice' | translate }}
+            </option>
+
+            <option value="protection">
+              {{ 'help.categoryProtection' | translate }}
+            </option>
+
+            <option value="schedule">
+              {{ 'help.categorySchedule' | translate }}
+            </option>
+
+            <option value="account">
+              {{ 'help.categoryAccount' | translate }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>
+            {{ 'help.message' | translate }}
+          </span>
+
+          <textarea
+            name="supportMessage"
+            rows="5"
+            [(ngModel)]="supportMessage"
+            [placeholder]="
+              'help.messagePlaceholder'
+                | translate
+            ">
+          </textarea>
+        </label>
+
+        @if (supportErrorKey) {
+          <div class="error-message">
+            {{ supportErrorKey | translate }}
+          </div>
+        }
+
+        @if (supportSubmitted) {
+          <div class="success-message">
+            {{ 'help.requestReceived' | translate }}
+          </div>
+        }
+
+        <button
+          type="submit"
+          class="primary-button">
+
+          {{ 'help.sendRequest' | translate }}
+        </button>
+
+        <small class="poc-note">
+          {{ 'help.pocNote' | translate }}
+        </small>
+      </form>
+    </section>
+
+  </main>
+</div>

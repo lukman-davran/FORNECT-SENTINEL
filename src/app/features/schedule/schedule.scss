@@ -1,9 +1,9 @@
 :host {
   display: block;
   min-height: 100vh;
-  font-family: Inter, Arial, sans-serif;
-  background: #f8fafc;
-  color: #111827;
+  font-family: var(--fn-font);
+  background: var(--fn-bg);
+  color: var(--fn-ink);
 }
 
 .schedule-page {
@@ -17,12 +17,12 @@
   gap: 20px;
   padding: 24px 32px;
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--fn-border);
 }
 
 .eyebrow {
   margin: 0 0 6px;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -36,14 +36,14 @@
 
 .subtitle {
   margin: 6px 0 0;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 14px;
 }
 
 .back-button {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   background: #ffffff;
-  color: #111827;
+  color: var(--fn-ink);
   border-radius: 12px;
   padding: 11px 16px;
   font-size: 14px;
@@ -52,7 +52,7 @@
 }
 
 .back-button:hover {
-  background: #f9fafb;
+  background: var(--fn-surface-muted);
 }
 
 .content {
@@ -63,7 +63,7 @@
 
 .schedule-card {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--fn-border);
   border-radius: 22px;
   padding: 28px;
 }
@@ -79,7 +79,7 @@
 .card-label {
   display: block;
   margin-bottom: 6px;
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -105,7 +105,7 @@
   position: absolute;
   inset: 0;
   border-radius: 999px;
-  background: #d1d5db;
+  background: var(--fn-border-strong);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -124,7 +124,7 @@
 }
 
 .switch input:checked + .slider {
-  background: #111827;
+  background: var(--fn-ink);
 }
 
 .switch input:checked + .slider::before {
@@ -153,17 +153,17 @@
 
 .form-field input {
   height: 48px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   border-radius: 12px;
   padding: 0 14px;
   background: #ffffff;
-  color: #111827;
+  color: var(--fn-ink);
   font-size: 15px;
 }
 
 .form-field input:focus {
   outline: none;
-  border-color: #111827;
+  border-color: var(--fn-ink);
   box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
 }
 
@@ -181,7 +181,7 @@
 .day {
   min-width: 54px;
   height: 42px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   border-radius: 11px;
   background: #ffffff;
   color: #374151;
@@ -191,9 +191,9 @@
 }
 
 .day.active {
-  background: #111827;
+  background: var(--fn-orange-btn);
   color: #ffffff;
-  border-color: #111827;
+  border-color: var(--fn-orange-btn);
 }
 
 .schedule-summary {
@@ -234,7 +234,7 @@
   justify-content: flex-end;
   gap: 12px;
   padding-top: 22px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--fn-surface-muted);
 }
 
 .cancel-button,
@@ -249,22 +249,98 @@
 
 .cancel-button {
   background: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #111827;
+  border: 1px solid var(--fn-border-strong);
+  color: var(--fn-ink);
 }
 
 .save-button {
-  background: #111827;
-  border: 1px solid #111827;
+  background: var(--fn-orange-btn);
+  border: 1px solid var(--fn-orange-btn);
   color: #ffffff;
 }
 
 .cancel-button:hover {
-  background: #f9fafb;
+  background: var(--fn-surface-muted);
 }
 
 .save-button:hover {
-  background: #1f2937;
+  background: var(--fn-orange-btn-strong);
+}
+
+
+.mode-switch {
+  margin-bottom: 22px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mode-buttons button {
+  border: 1px solid var(--fn-border-strong);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--fn-ink);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mode-buttons button.active {
+  background: var(--fn-orange-btn);
+  border-color: var(--fn-orange-btn);
+  color: #ffffff;
+}
+
+.mode-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--fn-muted);
+}
+
+.per-day-list {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 22px;
+}
+
+.per-day-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+  border-top: 1px solid var(--fn-surface-muted);
+}
+
+.per-day-row:first-of-type {
+  border-top: none;
+}
+
+.per-day-row .day {
+  min-width: 64px;
+}
+
+.per-day-arrow {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.per-day-off {
+  font-size: 12px;
+  color: #9ca3af;
 }
 
 @media (max-width: 650px) {
@@ -305,11 +381,11 @@
 .time-picker select {
   flex: 1;
   height: 48px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--fn-border-strong);
   border-radius: 12px;
   padding: 0 14px;
   background: #ffffff;
-  color: #111827;
+  color: var(--fn-ink);
   font-size: 16px;
   font-weight: 600;
   outline: none;
@@ -317,12 +393,12 @@
 }
 
 .time-picker select:focus {
-  border-color: #111827;
+  border-color: var(--fn-ink);
   box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
 }
 
 .time-separator {
-  color: #6b7280;
+  color: var(--fn-muted);
   font-size: 20px;
   font-weight: 700;
 }
@@ -343,4 +419,13 @@
 
 .save-success span {
   font-size: 16px;
+}
+
+
+/* Dodirne mete na telefonu. Apple i Google preporucuju najmanje
+   44px; na misu ostaje kako je bilo, jer tamo je precizniji. */
+@media (pointer: coarse) {
+  .mode-buttons button {
+    min-height: 44px;
+  }
 }

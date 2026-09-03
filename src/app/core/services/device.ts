@@ -1,22 +1,43 @@
 ﻿import { computed, inject, Injectable, signal } from '@angular/core';
 
 import { AuthService } from './auth';
+import {
+  createDays,
+  DeviceSchedule,
+  normalizeSchedule
+} from './schedule';
+
+export type {
+  DayWindow,
+  DeviceSchedule,
+  ScheduleDay,
+  ScheduleMode
+} from './schedule';
 
 export type DeviceProfile = 'Child' | 'Teen' | 'Adult' | 'Admin' | null;
 export type ProtectionLevel = 'standard' | 'full' | 'needs-setup';
 export type PairingState = 'unpaired' | 'pairing' | 'paired' | 'failed';
 
-export interface DeviceSchedule {
-  enabled: boolean;
-  startHour: string;
-  startMinute: string;
-  endHour: string;
-  endMinute: string;
-  days: {
-    label: string;
-    selected: boolean;
-  }[];
+export interface DeviceRestrictions {
+  blockAdultContent: boolean;
+  blockSocialMedia: boolean;
+  blockGaming: boolean;
+  blockStreaming: boolean;
+  blockAdsTrackers: boolean;
+  safeSearch: boolean;
+  youtubeRestricted: boolean;
 }
+
+export const restrictionKeys: (keyof DeviceRestrictions)[] = [
+  'blockAdultContent',
+  'blockSocialMedia',
+  'blockGaming',
+  'blockStreaming',
+  'blockAdsTrackers',
+  'safeSearch',
+  'youtubeRestricted'
+];
+
 
 export interface FornectNetworkDevice {
   id: string;
@@ -25,9 +46,20 @@ export interface FornectNetworkDevice {
   type: 'phone' | 'tv' | 'console' | 'unknown';
   profile: DeviceProfile;
   protectionLevel: ProtectionLevel;
+  protectionEnabled?: boolean;
+  protectAwayFromHome?: boolean;
   pairingState: PairingState;
+  /**
+   * Da li se koristi puna zaštita. Odvojeno od pairingState:
+   * certifikat može ostati instaliran dok je zaštita spuštena
+   * na standardnu, pa povratak na punu ne traži novu instalaciju.
+   */
+  useFullProtection?: boolean;
   online: boolean;
+  blockedAdsToday?: number;
   overrideUntil?: number | null;
+  restrictions?: DeviceRestrictions;
+  alertWhenOffline?: boolean;
   schedule: DeviceSchedule;
 }
 
@@ -36,15 +68,37 @@ export interface FornectNetworkDevice {
 })
 export class DeviceService {
   private readonly authService = inject(AuthService);
-  private readonly defaultDays = [
-    { label: 'Mon', selected: true },
-    { label: 'Tue', selected: true },
-    { label: 'Wed', selected: true },
-    { label: 'Thu', selected: true },
-    { label: 'Fri', selected: true },
-    { label: 'Sat', selected: false },
-    { label: 'Sun', selected: false }
+  private readonly defaultSelectedDays = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri'
   ];
+
+  private makeSchedule(
+    enabled: boolean,
+    startHour: string,
+    startMinute: string,
+    endHour: string,
+    endMinute: string
+  ): DeviceSchedule {
+    return {
+      enabled,
+      mode: 'sameEveryDay',
+      startHour,
+      startMinute,
+      endHour,
+      endMinute,
+      days: createDays(
+        this.defaultSelectedDays,
+        startHour,
+        startMinute,
+        endHour,
+        endMinute
+      )
+    };
+  }
 
   private readonly allDevices = signal<FornectNetworkDevice[]>([
     {
@@ -56,14 +110,13 @@ export class DeviceService {
       protectionLevel: 'full',
       pairingState: 'paired',
       online: true,
-      schedule: {
-        enabled: true,
-        startHour: '21',
-        startMinute: '00',
-        endHour: '07',
-        endMinute: '00',
-        days: structuredClone(this.defaultDays)
-      }
+      schedule: this.makeSchedule(
+          true,
+          '21',
+          '00',
+          '07',
+          '00'
+        )
     },
     {
       id: 'living-room-tv',
@@ -74,14 +127,13 @@ export class DeviceService {
       protectionLevel: 'standard',
       pairingState: 'unpaired',
       online: true,
-      schedule: {
-        enabled: false,
-        startHour: '22',
-        startMinute: '00',
-        endHour: '07',
-        endMinute: '00',
-        days: structuredClone(this.defaultDays)
-      }
+      schedule: this.makeSchedule(
+          false,
+          '22',
+          '00',
+          '07',
+          '00'
+        )
     },
     {
       id: 'playstation-5',
@@ -92,14 +144,13 @@ export class DeviceService {
       protectionLevel: 'standard',
       pairingState: 'unpaired',
       online: false,
-      schedule: {
-        enabled: true,
-        startHour: '22',
-        startMinute: '00',
-        endHour: '08',
-        endMinute: '00',
-        days: structuredClone(this.defaultDays)
-      }
+      schedule: this.makeSchedule(
+          true,
+          '22',
+          '00',
+          '08',
+          '00'
+        )
     },
     {
       id: 'unknown-device',
@@ -110,14 +161,13 @@ export class DeviceService {
       protectionLevel: 'needs-setup',
       pairingState: 'unpaired',
       online: true,
-      schedule: {
-        enabled: false,
-        startHour: '21',
-        startMinute: '00',
-        endHour: '07',
-        endMinute: '00',
-        days: structuredClone(this.defaultDays)
-      }
+      schedule: this.makeSchedule(
+          false,
+          '21',
+          '00',
+          '07',
+          '00'
+        )
     }
   ]);
 
@@ -134,12 +184,148 @@ export class DeviceService {
   });
 
   constructor() {
+    this.loadDiscoveredDevicesForCurrentAccount();
     this.loadSavedDeviceSetup();
     this.loadSavedSchedules();
     this.loadSavedPairingStates();
     this.loadSavedDeviceStates();
   }
 
+  discoverDemoDevicesForCurrentAccount(): void {
+    const accountId = this.authService.currentUser()?.accountId;
+
+    if (!accountId) {
+      return;
+    }
+
+    // Ne dodaj ponovo uređaje ako su već otkriveni.
+    const alreadyDiscovered = this.allDevices().some(
+      device => device.accountId === accountId
+    );
+
+    if (alreadyDiscovered) {
+      return;
+    }
+
+    const discoveredDevices: FornectNetworkDevice[] = [
+      {
+        id: `iphone-${accountId}`,
+        accountId,
+        name: 'iPhone',
+        type: 'phone',
+        profile: null,
+        protectionLevel: 'needs-setup',
+        pairingState: 'unpaired',
+        online: true,
+        schedule: this.makeSchedule(
+          false,
+          '21',
+          '00',
+          '07',
+          '00'
+        )
+      },
+      {
+        id: `tv-${accountId}`,
+        accountId,
+        name: 'Living Room TV',
+        type: 'tv',
+        profile: null,
+        protectionLevel: 'needs-setup',
+        pairingState: 'unpaired',
+        online: true,
+        schedule: this.makeSchedule(
+          false,
+          '22',
+          '00',
+          '07',
+          '00'
+        )
+      },
+      {
+        id: `console-${accountId}`,
+        accountId,
+        name: 'Game Console',
+        type: 'console',
+        profile: null,
+        protectionLevel: 'needs-setup',
+        pairingState: 'unpaired',
+        online: false,
+        schedule: this.makeSchedule(
+          false,
+          '22',
+          '00',
+          '08',
+          '00'
+        )
+      },
+      {
+        id: `unknown-${accountId}`,
+        accountId,
+        name: 'New device',
+        type: 'unknown',
+        profile: null,
+        protectionLevel: 'needs-setup',
+        pairingState: 'unpaired',
+        online: true,
+        schedule: this.makeSchedule(
+          false,
+          '21',
+          '00',
+          '07',
+          '00'
+        )
+      }
+    ];
+
+    this.allDevices.update(devices => [
+      ...devices,
+      ...discoveredDevices
+    ]);
+
+    localStorage.setItem(
+      `fornect-discovered-devices-${accountId}`,
+      JSON.stringify(discoveredDevices)
+    );
+  }
+
+  private loadDiscoveredDevicesForCurrentAccount(): void {
+    const accountId = this.authService.currentUser()?.accountId;
+
+    if (!accountId) {
+      return;
+    }
+
+    const saved = localStorage.getItem(
+      `fornect-discovered-devices-${accountId}`
+    );
+
+    if (!saved) {
+      return;
+    }
+
+    try {
+      const discovered =
+        JSON.parse(saved) as FornectNetworkDevice[];
+
+      this.allDevices.update(devices => {
+        const existingIds = new Set(
+          devices.map(device => device.id)
+        );
+
+        return [
+          ...devices,
+          ...discovered.filter(
+            device => !existingIds.has(device.id)
+          )
+        ];
+      });
+    } catch {
+      localStorage.removeItem(
+        `fornect-discovered-devices-${accountId}`
+      );
+    }
+  }
   private loadSavedDeviceSetup(): void {
     const savedSetup = localStorage.getItem(
       'fornect-device-setup-unknown-device'
@@ -203,9 +389,17 @@ export class DeviceService {
           return device;
         }
 
+        const schedule = normalizeSchedule(
+          JSON.parse(saved)
+        );
+
+        if (!schedule) {
+          return device;
+        }
+
         return {
           ...device,
-          schedule: JSON.parse(saved)
+          schedule
         };
       })
     );
@@ -287,11 +481,25 @@ export class DeviceService {
       return;
     }
 
+    // Promjena profila povlaci novi preset
+    // ogranicenja, osim ako pozivalac salje svoja.
+    const appliedChanges: Partial<FornectNetworkDevice> =
+      changes.profile !== undefined &&
+      changes.restrictions === undefined
+        ? {
+            ...changes,
+            restrictions:
+              this.getDefaultRestrictions(
+                changes.profile
+              )
+          }
+        : changes;
+
     this.allDevices.update(devices =>
       devices.map(item =>
         item.id === id &&
         item.accountId === accountId
-          ? { ...item, ...changes }
+          ? { ...item, ...appliedChanges }
           : item
       )
     );
@@ -314,9 +522,144 @@ export class DeviceService {
       storageKey,
       JSON.stringify({
         ...savedChanges,
-        ...changes
+        ...appliedChanges
       })
     );
+  }
+
+  /**
+   * Podrazumijevano pratimo nestanak sa mreže samo za dječije i
+   * tinejdžerske uređaje. Za TV ili roditeljski telefon to bi
+   * bila samo buka, jer se oni gase svaki dan bez razloga za
+   * uzbunu. Roditelj podešavanje može promijeniti po uređaju.
+   */
+  offlineAlertEnabled(
+    device: FornectNetworkDevice
+  ): boolean {
+    if (device.alertWhenOffline !== undefined) {
+      return device.alertWhenOffline;
+    }
+
+    return (
+      device.profile === 'Child' ||
+      device.profile === 'Teen'
+    );
+  }
+
+  setOfflineAlert(id: string, enabled: boolean): void {
+    this.updateDevice(id, {
+      alertWhenOffline: enabled
+    });
+  }
+
+  getDefaultRestrictions(
+    profile: DeviceProfile
+  ): DeviceRestrictions {
+    switch (profile) {
+      case 'Admin':
+        return {
+          blockAdultContent: false,
+          blockSocialMedia: false,
+          blockGaming: false,
+          blockStreaming: false,
+          blockAdsTrackers: false,
+          safeSearch: false,
+          youtubeRestricted: false
+        };
+
+      case 'Adult':
+        return {
+          blockAdultContent: false,
+          blockSocialMedia: false,
+          blockGaming: false,
+          blockStreaming: false,
+          blockAdsTrackers: true,
+          safeSearch: false,
+          youtubeRestricted: false
+        };
+
+      case 'Teen':
+        return {
+          blockAdultContent: true,
+          blockSocialMedia: false,
+          blockGaming: false,
+          blockStreaming: false,
+          blockAdsTrackers: true,
+          safeSearch: true,
+          youtubeRestricted: false
+        };
+
+      // Child i jos nedodijeljeni uredaji dobijaju
+      // najstroziji preset kao sigurnu polaznu tacku.
+      default:
+        return {
+          blockAdultContent: true,
+          blockSocialMedia: true,
+          blockGaming: false,
+          blockStreaming: false,
+          blockAdsTrackers: true,
+          safeSearch: true,
+          youtubeRestricted: true
+        };
+    }
+  }
+
+  getRestrictions(id: string): DeviceRestrictions {
+    const device = this.getDevice(id);
+
+    if (!device) {
+      return this.getDefaultRestrictions(null);
+    }
+
+    return (
+      device.restrictions ??
+      this.getDefaultRestrictions(device.profile)
+    );
+  }
+
+  usesProfileDefaults(id: string): boolean {
+    const device = this.getDevice(id);
+
+    if (!device) {
+      return true;
+    }
+
+    const defaults =
+      this.getDefaultRestrictions(device.profile);
+
+    const current = this.getRestrictions(id);
+
+    return restrictionKeys.every(
+      key => current[key] === defaults[key]
+    );
+  }
+
+  setRestriction(
+    id: string,
+    key: keyof DeviceRestrictions,
+    value: boolean
+  ): void {
+    const current = this.getRestrictions(id);
+
+    this.updateDevice(id, {
+      restrictions: {
+        ...current,
+        [key]: value
+      }
+    });
+  }
+
+  resetRestrictions(id: string): void {
+    const device = this.getDevice(id);
+
+    if (!device) {
+      return;
+    }
+
+    this.updateDevice(id, {
+      restrictions:
+        this.getDefaultRestrictions(device.profile)
+    });
   }
 
   getDevice(id: string): FornectNetworkDevice | undefined {
@@ -333,6 +676,10 @@ export class DeviceService {
     );
   }
 }
+
+
+
+
 
 
 

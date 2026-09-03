@@ -1,0 +1,130 @@
+﻿<div class="register-page">
+  <div class="register-card">
+
+    <app-language-switch />
+
+    <a routerLink="/login" class="brand">
+      <div class="brand-mark">F</div>
+
+      <div>
+        <h1>Fornect</h1>
+
+        <p>
+          {{ 'login.tagline' | translate }}
+        </p>
+      </div>
+    </a>
+
+    <div class="content">
+      <div class="heading">
+        <h2>
+          {{ 'register.title' | translate }}
+        </h2>
+
+        <p>
+          {{ 'register.subtitle' | translate }}
+        </p>
+      </div>
+
+      <form (ngSubmit)="submit()">
+
+        <div class="form-field">
+          <label for="name">
+            {{ 'register.fullName' | translate }}
+          </label>
+
+          <input
+            id="name"
+            name="name"
+            type="text"
+            [(ngModel)]="name"
+            [placeholder]="
+              'register.namePlaceholder'
+                | translate
+            "
+            autocomplete="name"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="email">
+            {{ 'register.email' | translate }}
+          </label>
+
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="email"
+            placeholder="name@example.com"
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="password">
+            {{ 'register.password' | translate }}
+          </label>
+
+          <input
+            id="password"
+            name="password"
+            type="password"
+            [(ngModel)]="password"
+            [placeholder]="
+              'register.passwordPlaceholder'
+                | translate
+            "
+            autocomplete="new-password"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="confirmPassword">
+            {{
+              'register.confirmPassword'
+                | translate
+            }}
+          </label>
+
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            [(ngModel)]="confirmPassword"
+            [placeholder]="
+              'register.confirmPlaceholder'
+                | translate
+            "
+            autocomplete="new-password"
+          />
+        </div>
+
+        @if (errorMessageKey) {
+          <div class="error-message">
+            {{ errorMessageKey | translate }}
+          </div>
+        }
+
+        <button
+          type="submit"
+          class="primary-button">
+          {{ 'register.createAccount' | translate }}
+        </button>
+      </form>
+
+      <div class="sign-in">
+        <span>
+          {{
+            'register.alreadyHaveAccount'
+              | translate
+          }}
+        </span>
+
+        <a routerLink="/login">
+          {{ 'register.signIn' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

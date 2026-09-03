@@ -1,0 +1,229 @@
+﻿:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--fn-bg);
+  color: var(--fn-ink);
+}
+
+.notifications-page {
+  min-height: 100vh;
+}
+
+.topbar {
+  padding: 28px 40px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--fn-border);
+  background: white;
+}
+
+.eyebrow,
+.section-label {
+  margin: 0 0 6px;
+  color: var(--fn-orange);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+.subtitle {
+  margin: 7px 0 0;
+  color: var(--fn-muted);
+}
+
+.back-button,
+.mark-all-button,
+.read-button {
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.back-button {
+  padding: 10px 14px;
+  border: 1px solid var(--fn-border);
+  border-radius: 10px;
+  color: var(--fn-ink);
+  background: white;
+}
+
+.content {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 34px 24px 60px;
+}
+
+.notifications-card {
+  padding: 26px;
+  border: 1px solid var(--fn-border);
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 12px 30px rgba(23, 32, 51, 0.05);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 23px;
+}
+
+.unread-count {
+  min-width: 24px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--fn-orange);
+  color: white;
+  font-size: 12px;
+}
+
+.mark-all-button {
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(245, 130, 31, 0.09);
+  color: #d96c0a;
+  cursor: pointer;
+}
+
+.notification-list {
+  display: grid;
+  gap: 10px;
+}
+
+.notification-item {
+  padding: 17px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid #e5e9ef;
+  border-radius: 14px;
+  background: white;
+}
+
+.notification-item--unread {
+  border-color: rgba(245, 130, 31, 0.28);
+  background: rgba(245, 130, 31, 0.035);
+}
+
+.notification-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+.notification-icon--offline {
+  background: #fff0f0;
+  color: #b34b4b;
+}
+
+.notification-icon--update {
+  background: #eef4ff;
+  color: #436fb3;
+}
+
+.notification-icon--protection {
+  background: #eef9f3;
+  color: #38835f;
+}
+
+.notification-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-title-row h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.unread-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--fn-orange);
+}
+
+.notification-content p {
+  margin: 5px 0;
+  color: #6f7b8f;
+  line-height: 1.45;
+}
+
+.notification-time {
+  color: #9aa3b1;
+  font-size: 12px;
+}
+
+.read-button {
+  padding: 8px 10px;
+  border: 1px solid #d9dfe8;
+  border-radius: 8px;
+  background: white;
+  color: #56647a;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+
+.notification-icon--capacity {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+@media (max-width: 650px) {
+  .topbar {
+    padding: 22px 18px;
+    flex-direction: column;
+  }
+
+  .content {
+    padding: 24px 16px 40px;
+  }
+
+  .notifications-card {
+    padding: 18px;
+  }
+
+  .notification-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .read-button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+
+/* Dodirne mete na telefonu. Apple i Google preporucuju najmanje
+   44px; na misu ostaje kako je bilo, jer tamo je precizniji. */
+@media (pointer: coarse) {
+  .read-button {
+    min-height: 44px;
+  }
+}

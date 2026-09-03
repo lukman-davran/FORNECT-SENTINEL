@@ -1,0 +1,222 @@
+﻿<div class="pairing-page">
+  <div class="pairing-card">
+
+    <app-language-switch />
+
+    <div class="brand">
+      <div class="brand-mark">F</div>
+
+      <div>
+        <h1>Fornect</h1>
+
+        <p>
+          {{ 'pair.tagline' | translate }}
+        </p>
+      </div>
+    </div>
+
+    @if (!paired) {
+
+      <div class="content">
+        <p class="eyebrow">
+          {{ 'pair.deviceSetup' | translate }}
+        </p>
+
+        <h2>
+          {{ 'pair.title' | translate }}
+        </h2>
+
+        <p class="intro">
+          {{ 'pair.intro' | translate }}
+        </p>
+
+        <div class="method-selector">
+
+          <button
+            type="button"
+            [class.active]="method === 'qr'"
+            (click)="selectMethod('qr')">
+
+            <strong>
+              {{ 'pair.scanQr' | translate }}
+            </strong>
+
+            <span>
+              {{
+                'pair.scanQrDescription'
+                  | translate
+              }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            [class.active]="method === 'serial'"
+            (click)="selectMethod('serial')">
+
+            <strong>
+              {{ 'pair.serialNumber' | translate }}
+            </strong>
+
+            <span>
+              {{
+                'pair.serialDescription'
+                  | translate
+              }}
+            </span>
+          </button>
+
+        </div>
+
+        @if (method === 'qr') {
+
+          <section class="qr-section">
+            <div class="qr-frame">
+              <div class="qr-placeholder">
+                <span>▦</span>
+              </div>
+            </div>
+
+            <h3>
+              {{ 'pair.scanDeviceQr' | translate }}
+            </h3>
+
+            <p>
+              {{
+                'pair.realCameraDescription'
+                  | translate
+              }}
+            </p>
+
+            <button
+              type="button"
+              class="primary-button"
+              (click)="simulateQrScan()">
+
+              {{ 'pair.simulateQr' | translate }}
+            </button>
+
+            <small>
+              {{ 'pair.pocCamera' | translate }}
+            </small>
+          </section>
+
+        } @else {
+
+          <section class="serial-section">
+
+            <div class="form-field">
+              <label for="serialNumber">
+                {{ 'pair.deviceSerial' | translate }}
+              </label>
+
+              <input
+                id="serialNumber"
+                name="serialNumber"
+                type="text"
+                [(ngModel)]="serialNumber"
+                placeholder="e.g. FH-2026-001234"
+              />
+            </div>
+
+            @if (errorMessageKey) {
+              <div class="error-message">
+                {{ errorMessageKey | translate }}
+              </div>
+            }
+
+            <button
+              type="button"
+              class="primary-button"
+              (click)="pairBySerial()">
+
+              {{ 'pair.pairDevice' | translate }}
+            </button>
+
+          </section>
+
+        }
+
+        <a
+          routerLink="/login"
+          class="skip-link">
+
+          {{ 'pair.cancel' | translate }}
+        </a>
+      </div>
+
+    } @else {
+
+      <div class="success-state">
+
+        <div class="success-icon">
+          ✓
+        </div>
+
+        <p class="eyebrow">
+          {{ 'pair.paired' | translate }}
+        </p>
+
+        <h2>
+          {{
+            'pair.connected'
+              | translate:{ name: pairedDevice.name }
+          }}
+        </h2>
+
+        <p>
+          {{
+            'pair.successDescription'
+              | translate
+          }}
+        </p>
+
+        <div class="device-summary">
+          <div>
+            <span>
+              {{ 'pair.device' | translate }}
+            </span>
+
+            <strong>
+              {{ pairedDevice.name }}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              {{ 'pair.serialNumber' | translate }}
+            </span>
+
+            <strong>
+              {{ pairedDevice.serialNumber }}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              {{ 'pair.mode' | translate }}
+            </span>
+
+            <strong>
+              {{ pairedDevice.softwareMode }}
+            </strong>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="primary-link"
+          (click)="continueToDashboard()">
+
+          {{
+            'pair.continueDashboard'
+              | translate
+          }}
+        </button>
+
+      </div>
+
+    }
+
+  </div>
+</div>

@@ -1,0 +1,154 @@
+﻿<div class="verify-page">
+  <div class="verify-card">
+
+    <app-language-switch />
+
+    <a routerLink="/login" class="brand">
+      <div class="brand-mark">F</div>
+
+      <div>
+        <h1>Fornect</h1>
+
+        <p>
+          {{ 'login.tagline' | translate }}
+        </p>
+      </div>
+    </a>
+
+    @if (!verified) {
+      <div class="content">
+
+        <div class="mail-icon">
+          ✉
+        </div>
+
+        <div class="heading">
+          <h2>
+            {{ 'verify.checkEmail' | translate }}
+          </h2>
+
+          <p>
+            {{ 'verify.sentCode' | translate }}
+          </p>
+
+          <strong class="email">
+            {{
+              email ||
+              ('verify.yourEmail' | translate)
+            }}
+          </strong>
+        </div>
+
+        <form (ngSubmit)="verify()">
+          <div class="form-field">
+            <label for="code">
+              {{ 'verify.code' | translate }}
+            </label>
+
+            <input
+              id="code"
+              name="code"
+              type="text"
+              inputmode="numeric"
+              maxlength="6"
+              [(ngModel)]="code"
+              placeholder="000000"
+              autocomplete="one-time-code"
+            />
+          </div>
+
+          <p class="poc-hint">
+            {{ 'verify.pocCode' | translate }}
+            <strong>123456</strong>
+          </p>
+
+          @if (errorMessageKey) {
+            <div class="error-message">
+              {{ errorMessageKey | translate }}
+            </div>
+          }
+
+          @if (successMessageKey) {
+            <div class="success-message">
+              {{ successMessageKey | translate }}
+            </div>
+          }
+
+          <button
+            type="submit"
+            class="primary-button">
+            {{ 'verify.verifyEmail' | translate }}
+          </button>
+        </form>
+
+        <button
+          type="button"
+          class="resend-button"
+          (click)="resendCode()">
+          {{ 'verify.resend' | translate }}
+        </button>
+
+        <a
+          routerLink="/register"
+          class="back-link">
+          {{ 'verify.changeEmail' | translate }}
+        </a>
+      </div>
+
+    } @else {
+
+      <div class="verified-state">
+
+        <div class="success-icon">
+          ✓
+        </div>
+
+        <p class="eyebrow">
+          {{ 'verify.verified' | translate }}
+        </p>
+
+        <h2>
+          {{ 'verify.accountVerified' | translate }}
+        </h2>
+
+        <p>
+          {{
+            'verify.verifiedDescription'
+              | translate
+          }}
+        </p>
+
+        <div class="next-step-card">
+          <div class="next-step-icon">
+            F
+          </div>
+
+          <div class="next-step-content">
+            <span>
+              {{ 'verify.nextStep' | translate }}
+            </span>
+
+            <strong>
+              {{ 'verify.connectDevice' | translate }}
+            </strong>
+
+            <p>
+              {{
+                'verify.connectDescription'
+                  | translate
+              }}
+            </p>
+          </div>
+
+          <a
+            routerLink="/pair-device"
+            class="pair-device-button">
+            {{ 'verify.pairDevice' | translate }}
+          </a>
+        </div>
+
+      </div>
+    }
+
+  </div>
+</div>

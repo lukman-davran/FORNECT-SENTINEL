@@ -1,1 +1,73 @@
-/* You can add global styles to this file, and also import other style files */
+/* Bez ovoga sirina elementa ne ukljucuje padding i ivicu, pa
+   kartica sa `width: 100%` i unutrasnjim razmakom bude sira od
+   roditelja. Na desktopu se to gubilo u praznini, a na telefonu
+   je pravilo horizontalni scroll. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Fornect — globalni tokeni dizajna.
+ *
+ * Boje, tipografija i radijusi se definišu ovdje, a
+ * komponente ih koriste preko var(...). Ranije je svaka
+ * komponenta ponavljala svoje vrijednosti, pa su nastale
+ * dvije paralelne palete i dvije tamne boje.
+ */
+
+:root {
+  /* Brend */
+  --fn-orange: #f5821f;
+  --fn-orange-strong: #dd6f12;
+  --fn-orange-soft: rgba(245, 130, 31, 0.08);
+
+  /* Površina primarnog dugmeta.
+   * Odvojeno od --fn-orange namjerno: kontrast dugmadi se
+   * može podići izmjenom samo ove dvije vrijednosti, bez
+   * diranja ostatka brenda. */
+  --fn-orange-btn: var(--fn-orange);
+  --fn-orange-btn-strong: var(--fn-orange-strong);
+
+  /* Tekst i podloge */
+  --fn-ink: #172033;
+  --fn-ink-soft: #2a3546;
+  --fn-muted: #6b7280;
+  --fn-border: #e2e7ef;
+  --fn-border-strong: #d1d8e3;
+  --fn-surface: #ffffff;
+  --fn-surface-muted: #f2f5f9;
+  --fn-bg: #f6f8fb;
+
+  /* Tipografija
+   * Sistemski stack: ništa se ne preuzima, radi offline, i
+   * na Windowsu daje Segoe UI umjesto Ariala. Za Inter je
+   * dovoljno zamijeniti ovu jednu vrijednost. */
+  --fn-font: 'Segoe UI Variable Text', 'Segoe UI', system-ui,
+    -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: var(--fn-font);
+  background: var(--fn-bg);
+  color: var(--fn-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Fokus u brend boji, vidljiv samo pri kretanju tastaturom. */
+:focus-visible {
+  outline: 2px solid var(--fn-orange);
+  outline-offset: 2px;
+}

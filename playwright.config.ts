@@ -3,7 +3,19 @@
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
-  retries: 0,
+
+  // Prvi test placa hladan start dev servera. Playwright saceka
+  // da se port otvori, ali prvi stvarni zahtjev jos uvijek moze
+  // cekati kompilaciju. Na opterecenoj masini (Android emulator i
+  // Gradle daemon u pozadini) to je preslo podrazumijevanih 30
+  // sekundi i oborilo test 01, iako aplikacija radi ispravno.
+  timeout: 60000,
+
+  // Jedno ponavljanje pokriva taj hladan start. Cijena je da
+  // ponavljanje moze sakriti stvarnu nestabilnost, pa test koji
+  // prolazi tek iz drugog puta izvjestaj oznaci kao "flaky" -
+  // to treba pogledati, ne ignorisati.
+  retries: 1,
   reporter: [
     ['list'],
     ['html', { open: 'never' }]
