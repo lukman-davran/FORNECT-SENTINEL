@@ -72,6 +72,10 @@ const translations: Record<AppLanguage, Record<string, string>> = {
       'Blokiraj sadržaj za odrasle',
     'restrictions.blockAdultContentHint':
       'Pornografija i drugi sadržaj neprimjeren za maloljetnike.',
+    'restrictions.blockGambling':
+      'Blokiraj kockanje i kladionice',
+    'restrictions.blockGamblingHint':
+      'Online kladionice, kazina i slične stranice.',
     'restrictions.blockSocialMedia':
       'Blokiraj društvene mreže',
     'restrictions.blockSocialMediaHint':
@@ -1229,6 +1233,10 @@ const translations: Record<AppLanguage, Record<string, string>> = {
       'Block adult content',
     'restrictions.blockAdultContentHint':
       'Pornography and other content unsuitable for minors.',
+    'restrictions.blockGambling':
+      'Block gambling and betting',
+    'restrictions.blockGamblingHint':
+      'Online betting, casinos and similar sites.',
     'restrictions.blockSocialMedia':
       'Block social media',
     'restrictions.blockSocialMediaHint':

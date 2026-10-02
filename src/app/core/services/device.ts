@@ -25,6 +25,7 @@ export type PairingState =
 
 export interface DeviceRestrictions {
   blockAdultContent: boolean;
+  blockGambling: boolean;
   blockSocialMedia: boolean;
   blockGaming: boolean;
   blockStreaming: boolean;
@@ -35,6 +36,7 @@ export interface DeviceRestrictions {
 
 export const restrictionKeys: (keyof DeviceRestrictions)[] = [
   'blockAdultContent',
+  'blockGambling',
   'blockSocialMedia',
   'blockGaming',
   'blockStreaming',
@@ -294,6 +296,7 @@ export class DeviceService {
       case 'Admin':
         return {
           blockAdultContent: false,
+          blockGambling: false,
           blockSocialMedia: false,
           blockGaming: false,
           blockStreaming: false,
@@ -305,6 +308,7 @@ export class DeviceService {
       case 'Adult':
         return {
           blockAdultContent: false,
+          blockGambling: false,
           blockSocialMedia: false,
           blockGaming: false,
           blockStreaming: false,
@@ -316,6 +320,7 @@ export class DeviceService {
       case 'Teen':
         return {
           blockAdultContent: true,
+          blockGambling: true,
           blockSocialMedia: false,
           blockGaming: false,
           blockStreaming: false,
@@ -324,17 +329,33 @@ export class DeviceService {
           youtubeRestricted: false,
         };
 
-      // Child i jos nedodijeljeni uredaji dobijaju
-      // najstroziji preset kao sigurnu polaznu tacku.
-      default:
+      case 'Child':
         return {
           blockAdultContent: true,
+          blockGambling: true,
           blockSocialMedia: true,
           blockGaming: false,
           blockStreaming: false,
           blockAdsTrackers: true,
           safeSearch: true,
           youtubeRestricted: true,
+        };
+
+      // V1: uređaj bez profila NEMA ograničenja na mreži (samo zaštitu
+      // domaćinstva — prevare, reklame). Fornect preuzima cijelu mrežu
+      // sam, pa bi dječiji preset kao polazna tačka roditeljima i TV-u
+      // isti dan ugasio društvene mreže. Hub isto tako računa
+      // (server/src/services/device-config-sync.ts).
+      default:
+        return {
+          blockAdultContent: false,
+          blockGambling: false,
+          blockSocialMedia: false,
+          blockGaming: false,
+          blockStreaming: false,
+          blockAdsTrackers: true,
+          safeSearch: false,
+          youtubeRestricted: false,
         };
     }
   }
@@ -346,7 +367,12 @@ export class DeviceService {
       return this.getDefaultRestrictions(null);
     }
 
-    return device.restrictions ?? this.getDefaultRestrictions(device.profile);
+    // Spaja se sa podrazumijevanim: zapis sačuvan prije nove kategorije
+    // (npr. blockGambling) inače bi tu kategoriju prikazao kao isključenu.
+    return {
+      ...this.getDefaultRestrictions(device.profile),
+      ...(device.restrictions ?? {}),
+    };
   }
 
   usesProfileDefaults(id: string): boolean {

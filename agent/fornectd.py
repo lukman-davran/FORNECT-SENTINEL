@@ -54,7 +54,7 @@ import time
 import urllib.error
 import urllib.request
 
-VERSION = "0.7.1"
+VERSION = "0.8.0"
 
 API_BASE = os.environ.get("FORNECT_API", "https://admin.lukmandavran.cc/api/v1").rstrip("/")
 STATE_DIR = os.environ.get("FORNECT_STATE_DIR", "/etc/fornect")
@@ -985,6 +985,252 @@ def flush_threats(state: dict) -> dict:
     return state
 
 
+# ------------------------------------------ roditeljska kontrola (V1)
+#
+# Panel šalje device_rules: za svaki uređaj (MAC) koje kategorije su
+# zabranjene, SafeSearch, YouTube ograničenje, pauza i raspored. Agent
+# to provodi preko Pi-hole grupa:
+#
+#   fornect-adult / -gambling / -social   adliste (HaGeZi), samo u svojoj grupi
+#   fornect-gaming / -streaming           regex zabrane (naša lista domena)
+#   fornect-safesearch / -youtube         regex s ;reply= na Google/YouTube
+#                                         "safe" adrese (SafeSearch po uređaju —
+#                                         obični CNAME u Pi-hole važi za sve)
+#   fornect-pause                         regex ".*" = sve blokirano
+#
+# Uređaj (klijent po MAC-u) je član Default grupe (zaštita domaćinstva:
+# prevare, reklame) + grupa svojih zabrana. Raspored i pauzu agent
+# računa sam svake minute, pa noćni režim počne na vrijeme i kad je
+# oblak nedostupan.
+#
+# Diramo samo ono što nosi oznaku fornect-category:* / fornect-managed.
+
+CATEGORY_ADLISTS = {
+    "adult": "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/nsfw.txt",
+    "gambling": "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/gambling.mini.txt",
+    "social": "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/social.txt",
+}
+
+
+def _rx(*domains: str) -> list[str]:
+    return [r"(^|\.)" + re.escape(d) + "$" for d in domains]
+
+
+# Google/YouTube/Bing "sigurne" adrese (forcesafesearch.google.com,
+# restrictmoderate.youtube.com, strict.bing.com). AAAA dobija prazan
+# odgovor da uređaj ne zaobiđe pravilo preko IPv6.
+_SAFE_GOOGLE = r"^(www\.)?google\.[a-z]{2,3}(\.[a-z]{2})?$"
+_SAFE_BING = r"^(www\.)?bing\.com$"
+_YT = r"^(www\.|m\.)?youtube\.com$|^youtubei?\.googleapis\.com$|^(www\.)?youtube-nocookie\.com$"
+CATEGORY_REGEX = {
+    "gaming": _rx(
+        "roblox.com", "rbxcdn.com", "fortnite.com", "epicgames.com", "epicgames.dev",
+        "minecraft.net", "mojang.com", "steampowered.com", "steamcommunity.com",
+        "riotgames.com", "leagueoflegends.com", "playvalorant.com", "supercell.com",
+        "pubgmobile.com", "garena.com", "freefiremobile.com", "miniclip.com",
+        "poki.com", "crazygames.com", "friv.com",
+    ),
+    "streaming": _rx(
+        "youtube.com", "youtu.be", "googlevideo.com", "youtubei.googleapis.com", "ytimg.com",
+        "netflix.com", "nflxvideo.net", "twitch.tv", "ttvnw.net", "jtvnw.net",
+        "primevideo.com", "disneyplus.com", "max.com", "kick.com",
+    ),
+    "safesearch": [
+        _SAFE_GOOGLE + ";querytype=A;reply=216.239.38.120",
+        _SAFE_GOOGLE + ";querytype=AAAA;reply=nodata",
+        _SAFE_BING + ";querytype=A;reply=204.79.197.220",
+        _SAFE_BING + ";querytype=AAAA;reply=nodata",
+    ],
+    "youtube": [
+        _YT + ";querytype=A;reply=216.239.38.119",
+        _YT + ";querytype=AAAA;reply=nodata",
+    ],
+    "pause": [".*"],
+}
+ALL_CATEGORIES = sorted(set(CATEGORY_ADLISTS) | set(CATEGORY_REGEX))
+_rules_applied_sig: str | None = None
+_catalog_ready = False
+
+
+def _group(cat: str) -> str:
+    return f"fornect-{cat}"
+
+
+def _gid(cat: str) -> str:
+    return f"(SELECT id FROM \"group\" WHERE name='{_group(cat)}')"
+
+
+def ensure_rules_catalog() -> bool:
+    """Grupe, kategorijske adliste i regex pravila postoje i vezani su
+    SAMO za svoju grupu. Vraća True ako je dodana nova adlista (treba
+    izgraditi gravitaciju)."""
+    have = set((_sqlite_ro(GRAVITY_DB, "SELECT address FROM adlist;") or "").splitlines())
+    new_list = any(url not in have for url in CATEGORY_ADLISTS.values())
+    sql = ["BEGIN;"]
+    for cat in ALL_CATEGORIES:
+        sql.append(
+            f"INSERT OR IGNORE INTO \"group\" (name, enabled, description) "
+            f"VALUES ('{_group(cat)}', 1, 'Fornect: {cat}');"
+        )
+    for cat, url in CATEGORY_ADLISTS.items():
+        tag = f"fornect-category:{cat}"
+        sql += [
+            f"INSERT OR IGNORE INTO adlist (address, enabled, comment) VALUES ('{url}', 1, '{tag}');",
+            f"UPDATE adlist SET enabled=1, comment='{tag}' WHERE address='{url}';",
+            f"DELETE FROM adlist_by_group WHERE adlist_id=(SELECT id FROM adlist WHERE address='{url}') "
+            f"AND group_id <> {_gid(cat)};",
+            f"INSERT OR IGNORE INTO adlist_by_group (adlist_id, group_id) "
+            f"SELECT id, {_gid(cat)} FROM adlist WHERE address='{url}';",
+        ]
+    for cat, patterns in CATEGORY_REGEX.items():
+        tag = f"fornect-category:{cat}"
+        for pat in patterns:
+            sql += [
+                f"INSERT OR IGNORE INTO domainlist (type, domain, enabled, comment) VALUES (3, '{pat}', 1, '{tag}');",
+                f"DELETE FROM domainlist_by_group WHERE domainlist_id=(SELECT id FROM domainlist "
+                f"WHERE type=3 AND domain='{pat}') AND group_id <> {_gid(cat)};",
+                f"INSERT OR IGNORE INTO domainlist_by_group (domainlist_id, group_id) "
+                f"SELECT id, {_gid(cat)} FROM domainlist WHERE type=3 AND domain='{pat}';",
+            ]
+    sql.append("COMMIT;")
+    if not _gravity_sql("\n".join(sql)):
+        raise OSError("gravity.db: katalog roditeljske kontrole nije upisan")
+    return new_list
+
+
+def _schedule_active(schedule: dict | None, now: dt.datetime) -> bool:
+    """Isti račun kao isPausedAt u panelu: prozor po danu, i prozor koji
+    prelazi ponoć (počeo jučer, još traje)."""
+    if not schedule or not schedule.get("enabled"):
+        return False
+    labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+    def window(day_label: str) -> tuple[int, int] | None:
+        day = next((d for d in schedule.get("days") or [] if d.get("label") == day_label), None)
+        if not day or not day.get("selected"):
+            return None
+        src = day if schedule.get("mode") == "perDay" else schedule
+        try:
+            return (int(src["startHour"]) * 60 + int(src["startMinute"]),
+                    int(src["endHour"]) * 60 + int(src["endMinute"]))
+        except (KeyError, ValueError, TypeError):
+            return None
+
+    minutes = now.hour * 60 + now.minute
+    today = window(labels[now.weekday()])
+    if today:
+        start, end = today
+        if start < end and start <= minutes < end:
+            return True
+        if start > end and minutes >= start:
+            return True
+    prev = window(labels[(now.weekday() + 6) % 7])
+    if prev:
+        start, end = prev
+        if start > end and minutes < end:
+            return True
+    return False
+
+
+def _local_now(tz_name: str | None) -> dt.datetime:
+    try:
+        from zoneinfo import ZoneInfo
+        return dt.datetime.now(ZoneInfo(tz_name or "Europe/Sarajevo"))
+    except Exception:  # noqa: BLE001 — bez tz baze radimo po lokalnom satu
+        return dt.datetime.now()
+
+
+def desired_device_groups(cfg: dict, now_utc: dt.datetime | None = None) -> dict[str, list[str]]:
+    """MAC -> lista kategorija (grupa) koje uređaj treba imati SADA."""
+    now_utc = now_utc or dt.datetime.now(dt.timezone.utc)
+    tz = ((cfg.get("ota") or {}).get("maintenance_window") or {}).get("timezone")
+    local = _local_now(tz)
+    out: dict[str, list[str]] = {}
+    for rule in cfg.get("device_rules") or []:
+        mac = _norm_mac(rule.get("mac"))
+        if not mac:
+            continue
+        cats = {c for c in rule.get("block") or [] if c in CATEGORY_ADLISTS or c in CATEGORY_REGEX}
+        if rule.get("safe_search"):
+            cats.add("safesearch")
+        if rule.get("youtube_restricted"):
+            cats.add("youtube")
+        paused_until = parse_iso(rule.get("paused_until"))
+        allow_until = parse_iso(rule.get("allow_until"))
+        paused = bool(paused_until and paused_until > now_utc)
+        if not paused and _schedule_active(rule.get("schedule"), local):
+            paused = not (allow_until and allow_until > now_utc)
+        if paused:
+            cats.add("pause")
+        out[mac] = sorted(cats)
+    return out
+
+
+def apply_device_rules(cfg: dict) -> None:
+    """Uskladi Pi-hole klijente/grupe s pravilima. Zove se svake minute;
+    ne radi ništa dok se željeno stanje ne promijeni."""
+    global _rules_applied_sig, _catalog_ready
+    if not os.path.exists(GRAVITY_DB):
+        return
+    want = desired_device_groups(cfg)
+    sig = json.dumps(want, sort_keys=True)
+    if sig == _rules_applied_sig:
+        return
+    if not want and _rules_applied_sig is None and not _catalog_ready:
+        # Nema pravila i nikad ih nije ni bilo: ne diramo Pi-hole.
+        _rules_applied_sig = sig
+        return
+
+    if not _catalog_ready:
+        if ensure_rules_catalog():
+            start_gravity_rebuild("roditeljska-kontrola", len(CATEGORY_ADLISTS))
+        _catalog_ready = True
+
+    fornect_gids = "(SELECT id FROM \"group\" WHERE name LIKE 'fornect-%')"
+    sql = ["BEGIN;"]
+    keep = ",".join(f"'{m.upper()}'" for m in want) or "''"
+    # Uređaji koji više nemaju pravila izlaze iz Fornect upravljanja.
+    gone = f"(SELECT id FROM client WHERE comment='fornect-managed' AND ip NOT IN ({keep}))"
+    sql.append(f"DELETE FROM client_by_group WHERE client_id IN {gone};")
+    sql.append(f"DELETE FROM client WHERE comment='fornect-managed' AND ip NOT IN ({keep});")
+    for mac, cats in want.items():
+        ip = mac.upper()
+        sql += [
+            f"INSERT OR IGNORE INTO client (ip, comment) VALUES ('{ip}', 'fornect-managed');",
+            f"DELETE FROM client_by_group WHERE client_id=(SELECT id FROM client WHERE ip='{ip}') "
+            f"AND group_id IN {fornect_gids};",
+            # Default (0) ostaje: prevare i reklame važe za svakog.
+            f"INSERT OR IGNORE INTO client_by_group (client_id, group_id) "
+            f"SELECT id, 0 FROM client WHERE ip='{ip}';",
+        ]
+        for cat in cats:
+            sql.append(
+                f"INSERT OR IGNORE INTO client_by_group (client_id, group_id) "
+                f"SELECT id, {_gid(cat)} FROM client WHERE ip='{ip}';"
+            )
+    sql.append("COMMIT;")
+    if not _gravity_sql("\n".join(sql)):
+        log("Roditeljska kontrola: upis u gravity.db NIJE uspio, ponovo za minut.")
+        return
+    reloaded = run(["pihole", "reloadlists"]) is not None
+    _rules_applied_sig = sig
+    names = names_load()
+    parts = []
+    for mac, cats in sorted(want.items()):
+        label = (names.get(mac) or {}).get("name") or mac
+        parts.append(f"{label}: {', '.join(cats) or 'bez zabrana'}")
+    log("Roditeljska kontrola primijenjena (" + "; ".join(parts) + ")"
+        + ("" if reloaded else " — `pihole reloadlists` NIJE uspio"))
+
+
+def load_saved_config() -> dict:
+    try:
+        with open(CONFIG_FILE, encoding="utf-8") as f:
+            return json.load(f).get("config") or {}
+    except (OSError, ValueError):
+        return {}
+
+
 def portal_classify(mac: str, body: dict) -> tuple[int, dict]:
     target = body.get("state")
     with _portal_lock:
@@ -1477,6 +1723,13 @@ def main() -> int:
     dns: dict | None = None
 
     while _running:
+        # Prvo, i nezavisno od veze s oblakom: raspored i pauza se
+        # računaju iz sačuvane konfiguracije, pa noćni režim počne na
+        # vrijeme i kad internet/oblak ne radi.
+        try:
+            apply_device_rules(load_saved_config())
+        except OSError as e:
+            log(f"Roditeljska kontrola: {e}. Ponovo za minut.")
         try:
             if not state.get("device_id"):
                 state = register(state)
@@ -1486,6 +1739,9 @@ def main() -> int:
                 last_stats_at = time.monotonic()
             heartbeat(state, dns)
             state = pull_config(state)
+            # Nova pravila (npr. roditelj upravo pauzirao) odmah, ne tek
+            # u sljedećem krugu. Bez promjene ovo ne radi ništa.
+            apply_device_rules(load_saved_config())
             retry_gravity_if_needed()
             try:
                 state = scan_threats(state)

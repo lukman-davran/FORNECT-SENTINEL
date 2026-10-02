@@ -33,6 +33,7 @@ interface NetworkDeviceRow {
   online: boolean;
   blocked_ads_today: number;
   override_until: string | null;
+  paused_until: string | null;
   restrictions: unknown;
   alert_when_offline: boolean | null;
   schedule: unknown;
@@ -63,6 +64,7 @@ type PatchBody = Omit<CreateBody, 'mac_address' | 'fornect_device_id'> & {
   online?: boolean;
   blocked_ads_today?: number;
   override_until?: string | null;
+  paused_until?: string | null;
 };
 
 const CREATABLE_FIELDS = [
@@ -89,6 +91,7 @@ const PATCHABLE_FIELDS = [
   'online',
   'blocked_ads_today',
   'override_until',
+  'paused_until',
   'restrictions',
   'alert_when_offline',
   'schedule',
@@ -345,7 +348,7 @@ export async function networkDeviceRoutes(fastify: FastifyInstance): Promise<voi
         return reply.code(400).send(FULL_NEEDS_PROFILE);
       }
 
-      await syncIfPairingChanged(client, before, after);
+      await syncConfigAfterChange(client, before, after);
 
       // Obavještenje o odlasku sa mreže nastaje ovdje, a ne u panelu
       // pri otvaranju liste. Isti poziv radi i ruta kojom hub javlja
@@ -394,7 +397,8 @@ export async function networkDeviceRoutes(fastify: FastifyInstance): Promise<voi
         return reply.code(404).send({ error: 'Uređaj nije pronađen.' });
       }
 
-      if (deleted.pairing_state === 'paired') {
+      // Obrisan uređaj nosi sa sobom i svoja pravila na hub-u.
+      {
         await syncDeviceConfig(client, deleted.account_id, deleted.fornect_device_id);
       }
 
@@ -410,20 +414,16 @@ export async function networkDeviceRoutes(fastify: FastifyInstance): Promise<voi
   });
 }
 
-async function syncIfPairingChanged(
+// Ranije se config hub-a osvježavao samo kad se promijeni uparenost
+// (consented_macs). Od V1 config nosi i pravila po uređaju (kategorije,
+// raspored, pauza), pa se osvježava na svaku promjenu. Skupo nije:
+// syncDeviceConfig ne piše novu verziju ako je sadržaj isti.
+async function syncConfigAfterChange(
   client: PoolClient,
   before: NetworkDeviceRow,
   after: NetworkDeviceRow,
 ): Promise<void> {
-  const wasPaired = before.pairing_state === 'paired';
-  const isPaired = after.pairing_state === 'paired';
-
-  if (wasPaired === isPaired) {
-    return;
-  }
-
-  // Ako se hub promijenio u istom PATCH-u dok je i dalje uparen, treba
-  // osvježiti listu i na starom i na novom hub-u.
+  // Ako se hub promijenio u istom PATCH-u, osvježava se i stari i novi.
   await syncDeviceConfig(client, after.account_id, after.fornect_device_id);
 
   if (before.fornect_device_id && before.fornect_device_id !== after.fornect_device_id) {

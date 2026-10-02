@@ -58,6 +58,91 @@ export interface DeviceConfig {
     label: string | null;
     urls: string[];
   };
+  // Roditeljska kontrola (V1): šta hub provodi za svaki uređaj.
+  // Raspored i pauzu hub računa sam, svake minute, u vremenskoj zoni
+  // iz ota.maintenance_window.timezone — da noćni režim počne na
+  // vrijeme i kad je veza s oblakom u prekidu.
+  device_rules: DeviceRule[];
+}
+
+export type BlockCategory = 'adult' | 'gambling' | 'social' | 'gaming' | 'streaming';
+
+export interface DeviceRule {
+  mac: string;
+  block: BlockCategory[];
+  safe_search: boolean;
+  youtube_restricted: boolean;
+  // Pauza do (ISO). Hub blokira sve dok ne prođe.
+  paused_until: string | null;
+  // Privremena dozvola u vrijeme rasporeda (ISO).
+  allow_until: string | null;
+  schedule: unknown;
+}
+
+interface Restrictions {
+  blockAdultContent: boolean;
+  blockGambling: boolean;
+  blockSocialMedia: boolean;
+  blockGaming: boolean;
+  blockStreaming: boolean;
+  safeSearch: boolean;
+  youtubeRestricted: boolean;
+}
+
+/**
+ * Podrazumijevane zabrane po profilu. ISTE kao getDefaultRestrictions u
+ * panelu (src/app/core/services/device.ts) — uređaj mora provoditi
+ * tačno ono što roditelj vidi na ekranu. Mijenja se na oba mjesta.
+ */
+function defaultRestrictions(profile: string | null): Restrictions {
+  switch (profile) {
+    case 'Admin':
+    case 'Adult':
+      return {
+        blockAdultContent: false,
+        blockGambling: false,
+        blockSocialMedia: false,
+        blockGaming: false,
+        blockStreaming: false,
+        safeSearch: false,
+        youtubeRestricted: false,
+      };
+    case 'Teen':
+      return {
+        blockAdultContent: true,
+        blockGambling: true,
+        blockSocialMedia: false,
+        blockGaming: false,
+        blockStreaming: false,
+        safeSearch: true,
+        youtubeRestricted: false,
+      };
+    case 'Child':
+      return {
+        blockAdultContent: true,
+        blockGambling: true,
+        blockSocialMedia: true,
+        blockGaming: false,
+        blockStreaming: false,
+        safeSearch: true,
+        youtubeRestricted: true,
+      };
+    // Bez profila: bez ograničenja (samo zaštita domaćinstva).
+    default:
+      return {
+        blockAdultContent: false,
+        blockGambling: false,
+        blockSocialMedia: false,
+        blockGaming: false,
+        blockStreaming: false,
+        safeSearch: false,
+        youtubeRestricted: false,
+      };
+  }
+}
+
+function isScheduleEnabled(schedule: unknown): boolean {
+  return !!schedule && typeof schedule === 'object' && (schedule as { enabled?: unknown }).enabled === true;
 }
 
 export async function syncDeviceConfig(
@@ -140,6 +225,59 @@ export async function syncDeviceConfig(
 
   const activeList = listRows[0];
 
+  // Pravila po uređaju. Uređaj bez profila i bez ručno podešenih
+  // zabrana NE dobija dječiji preset na mreži, iako ga panel tako
+  // prikazuje kao polaznu tačku: auto-preuzimanje mreže bi inače
+  // roditelju i TV-u u kući isti dan ugasilo društvene mreže. Takav
+  // uređaj ima samo zaštitu cijelog domaćinstva (prevare, reklame).
+  const { rows: ruleRows } = await client.query<{
+    mac_address: string;
+    profile: string | null;
+    restrictions: Partial<Restrictions> | null;
+    schedule: unknown;
+    override_until: string | null;
+    paused_until: string | null;
+  }>(
+    `SELECT mac_address, profile, restrictions, schedule,
+            to_char(override_until AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS override_until,
+            to_char(paused_until AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS paused_until
+     FROM network_devices
+     WHERE account_id = (SELECT claimed_by_account_id FROM devices WHERE id = $1)
+       AND fornect_device_id = $1
+     ORDER BY mac_address`,
+    [fornectDeviceId],
+  );
+
+  const deviceRules: DeviceRule[] = [];
+
+  for (const row of ruleRows) {
+    const hasCategories = row.profile !== null || row.restrictions !== null;
+    const scheduled = isScheduleEnabled(row.schedule);
+
+    if (!hasCategories && !scheduled && !row.paused_until) {
+      continue;
+    }
+
+    const r: Restrictions = { ...defaultRestrictions(row.profile), ...(row.restrictions ?? {}) };
+
+    const block: BlockCategory[] = [];
+    if (r.blockAdultContent) block.push('adult');
+    if (r.blockGambling) block.push('gambling');
+    if (r.blockSocialMedia) block.push('social');
+    if (r.blockGaming) block.push('gaming');
+    if (r.blockStreaming) block.push('streaming');
+
+    deviceRules.push({
+      mac: row.mac_address,
+      block,
+      safe_search: !!r.safeSearch,
+      youtube_restricted: !!r.youtubeRestricted,
+      paused_until: row.paused_until,
+      allow_until: row.override_until,
+      schedule: scheduled ? row.schedule : null,
+    });
+  }
+
   const config: DeviceConfig = {
     consented_macs: consentedMacs,
     ota: {
@@ -159,6 +297,7 @@ export async function syncDeviceConfig(
       // filtriranje" — to bi bila zaštita ugašena greškom u panelu.
       urls: activeList?.urls ?? [],
     },
+    device_rules: deviceRules,
   };
 
   const serialised = JSON.stringify(config);
