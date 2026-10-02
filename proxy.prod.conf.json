@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://admin.lukmandavran.cc",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "warn"
+  }
+}
