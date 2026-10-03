@@ -238,13 +238,22 @@ export async function syncDeviceConfig(
     override_until: string | null;
     paused_until: string | null;
   }>(
-    `SELECT mac_address, profile, restrictions, schedule,
-            to_char(override_until AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS override_until,
-            to_char(paused_until AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS paused_until
-     FROM network_devices
-     WHERE account_id = (SELECT claimed_by_account_id FROM devices WHERE id = $1)
-       AND fornect_device_id = $1
-     ORDER BY mac_address`,
+    // Uređaj dodijeljen osobi nasljeđuje SVA pravila osobe (profil,
+    // zabrane, raspored, pauzu); vlastita polja uređaja se tada ne
+    // gledaju. Uređaj bez osobe radi po svojim poljima kao i ranije.
+    `SELECT nd.mac_address,
+            CASE WHEN p.id IS NULL THEN nd.profile ELSE p.profile END AS profile,
+            CASE WHEN p.id IS NULL THEN nd.restrictions ELSE p.restrictions END AS restrictions,
+            CASE WHEN p.id IS NULL THEN nd.schedule ELSE p.schedule END AS schedule,
+            to_char((CASE WHEN p.id IS NULL THEN nd.override_until ELSE p.override_until END) AT TIME ZONE 'UTC',
+                    'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS override_until,
+            to_char((CASE WHEN p.id IS NULL THEN nd.paused_until ELSE p.paused_until END) AT TIME ZONE 'UTC',
+                    'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS paused_until
+     FROM network_devices nd
+     LEFT JOIN people p ON p.id = nd.person_id
+     WHERE nd.account_id = (SELECT claimed_by_account_id FROM devices WHERE id = $1)
+       AND nd.fornect_device_id = $1
+     ORDER BY nd.mac_address`,
     [fornectDeviceId],
   );
 

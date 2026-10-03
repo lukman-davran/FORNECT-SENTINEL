@@ -34,6 +34,7 @@ interface NetworkDeviceRow {
   blocked_ads_today: number;
   override_until: string | null;
   paused_until: string | null;
+  person_id: string | null;
   restrictions: unknown;
   alert_when_offline: boolean | null;
   schedule: unknown;
@@ -65,6 +66,8 @@ type PatchBody = Omit<CreateBody, 'mac_address' | 'fornect_device_id'> & {
   blocked_ads_today?: number;
   override_until?: string | null;
   paused_until?: string | null;
+  // Dodjela osobi (Porodica); null = uređaj bez osobe.
+  person_id?: string | null;
 };
 
 const CREATABLE_FIELDS = [
@@ -92,6 +95,7 @@ const PATCHABLE_FIELDS = [
   'blocked_ads_today',
   'override_until',
   'paused_until',
+  'person_id',
   'restrictions',
   'alert_when_offline',
   'schedule',
@@ -304,6 +308,26 @@ export async function networkDeviceRoutes(fastify: FastifyInstance): Promise<voi
       if (!before) {
         await client.query('ROLLBACK');
         return reply.code(404).send({ error: 'Uređaj nije pronađen.' });
+      }
+
+      // Osoba mora biti s istog naloga — inače bi se tuđa pravila
+      // (ili tuđi ID) mogla zakačiti na ovaj uređaj.
+      if (body.person_id !== undefined && body.person_id !== null &&
+          (typeof body.person_id !== 'string' ||
+           !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.person_id))) {
+        await client.query('ROLLBACK');
+        return reply.code(400).send({ error: 'person_id mora biti ID osobe ili null.' });
+      }
+
+      if (body.person_id) {
+        const { rowCount: personOk } = await client.query(
+          'SELECT 1 FROM people WHERE id = $1 AND account_id = $2',
+          [body.person_id, request.accountId],
+        );
+        if (!personOk) {
+          await client.query('ROLLBACK');
+          return reply.code(400).send({ error: 'Osoba nije pronađena na ovom nalogu.' });
+        }
       }
 
       const nextPairing = body.pairing_state;

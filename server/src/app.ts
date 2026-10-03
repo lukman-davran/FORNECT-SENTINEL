@@ -14,6 +14,7 @@ import { healthRoutes } from './routes/health';
 import { hubRoutes } from './routes/hub';
 import { networkDeviceRoutes } from './routes/network-devices';
 import { notificationRoutes } from './routes/notifications';
+import { peopleRoutes } from './routes/people';
 import { portalBundleRoutes, portalSettingsRoutes } from './routes/portal-settings';
 import { vpnRoutes } from './routes/vpn';
 
@@ -59,6 +60,7 @@ export function buildApp() {
 
       appScope.register(networkDeviceRoutes, { prefix: '/network-devices' });
       appScope.register(notificationRoutes, { prefix: '/notifications' });
+      appScope.register(peopleRoutes, { prefix: '/people' });
       appScope.register(portalSettingsRoutes);
       appScope.register(hubRoutes);
 
